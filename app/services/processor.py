@@ -1,0 +1,42 @@
+from uuid import UUID
+
+from sqlalchemy.orm import Session
+
+from app.models.document import DocumentStatus
+from app.services.classifier import classify_document
+from app.services.extractors.factory import get_extractor
+from app.services.pdf_extractor import extract_text_from_pdf
+from app.storage import documents as documents_storage
+
+
+def process_document(db: Session, document_id: UUID) -> None:
+    """
+    Синхронная обработка одного документа:
+    queued/uploaded -> processing -> done | failed
+    """
+    document = documents_storage.get_document(db, document_id)
+    if document is None:
+        raise ValueError(f"Document {document_id} not found")
+
+    document.status = DocumentStatus.PROCESSING
+    document.error_message = None
+    db.commit()
+
+    try:
+        text = extract_text_from_pdf(document.storage_path)
+        if not text:
+            raise ValueError("No text extracted from PDF")
+        
+        doc_type = classify_document(text)
+        extraction = get_extractor().extract(text, doc_type)
+
+        document.extracted_text = text
+        document.document_type = doc_type
+        document.extraction_result = extraction.model_dump(mode="json")
+        document.status = DocumentStatus.DONE
+        db.commit()
+    except Exception as exc:
+        document.status = DocumentStatus.FAILED
+        document.error_message = str(exc)[:1000]
+        db.commit()
+        raise

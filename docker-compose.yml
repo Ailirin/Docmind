@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: docmind-db
+    environment:
+      POSTGRES_USER: docmind
+      POSTGRES_PASSWORD: docmind
+      POSTGRES_DB: docmind
+    ports:
+      - "5432:5432"
+    volumes:
+      - docmind_pgdata:/var/lib/postgresql/data
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: docmind-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - docmind_ollama:/root/.ollama
+    restart: unless-stopped
+
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: docmind-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: docmind
+      RABBITMQ_DEFAULT_PASS: docmind
+    volumes:
+      - docmind_rabbitmq:/var/lib/rabbitmq
+    restart: unless-stopped
+
+volumes:
+  docmind_pgdata:
+  docmind_ollama:
+  docmind_rabbitmq:

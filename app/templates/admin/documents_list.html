@@ -1,0 +1,47 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Documents — DocMind Admin{% endblock %}
+
+{% block content %}
+  <h1>Документы</h1>
+  <p class="muted">Всего: {{ documents|length }}</p>
+
+  {% if documents %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Файл</th>
+        <th>Путь</th>
+        <th>Статус</th>
+        <th>Тип</th>
+        <th>Текст</th>
+        <th>Создан</th>
+        <th>Ошибка</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for doc in documents %}
+      <tr>
+        <td><a href="/admin/documents/{{ doc.id }}"><code>{{ doc.id }}</code></a></td>
+        <td>{{ doc.filename }}</td>
+        <td><code>{{ doc.storage_path or "-"}}</code></td>
+        <td class="status">{{ doc.status.value }}</td>
+        <td>{{ doc.document_type.value if doc.document_type else "—" }}</td>
+        <td>
+          {% if doc.extracted_text %}
+            <a href="/admin/documents/{{ doc.id }}">{{ doc.extracted_text[:80] }}…</a>
+          {% else %}
+            —
+          {% endif %}
+        </td>
+        <td>{{ doc.created_at }}</td>
+        <td>{{ doc.error_message or "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">Пока нет документов. Загрузите PDF через <code>/docs</code>.</p>
+  {% endif %}
+{% endblock %}

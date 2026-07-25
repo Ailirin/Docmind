@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Document {{ document.id }} — DocMind Admin{% endblock %}
+
+{% block content %}
+  <p><a href="/admin/documents">← К списку</a></p>
+  <h1>{{ document.filename }}</h1>
+  <p class="muted"><code>{{ document.id }}</code></p>
+
+  <p><strong>Статус:</strong> <span class="status">{{ document.status.value }}</span></p>
+  <p><strong>Тип:</strong> {{ document.document_type.value if document.document_type else "—" }}</p>
+  <p><strong>Путь:</strong> <code>{{ document.storage_path or "—" }}</code></p>
+  <p><strong>Ошибка:</strong> {{ document.error_message or "—" }}</p>
+
+  <h2>Извлечённый текст</h2>
+  <pre class="block">{{ document.extracted_text or "—" }}</pre>
+
+  <h2>Extraction result</h2>
+  <pre class="block">{{ extraction_json }}</pre>
+{% endblock %}
