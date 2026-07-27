@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
@@ -18,6 +19,8 @@ from app.services.file_storage import save_upload
 from app.services.processor import process_document
 from app.storage import documents as documents_storage
 
+logger = logging.getLogger("docmind.api.v1")
+
 router = APIRouter()
 
 
@@ -36,12 +39,16 @@ async def upload_document(
 
     doc_id = uuid4()
 
+    logger.info("upload accepted doc_id=%s filename=%s", doc_id, file.filename)
+
     data = await file.read()
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
 
     # 1) сначала диск
     storage_path = await save_upload(doc_id, data)
+
+    logger.info("uploaded to storage doc_id=%s path=%s", doc_id, storage_path)
 
     # 2) потом БД
     document = Document(
@@ -55,10 +62,13 @@ async def upload_document(
 
     try:
         publish_document_process(doc_id)
+        logger.info("document enqueued doc_id=%s", doc_id)
+
     except Exception as exc:
         document.status = ModelDocumentStatus.FAILED
         document.error_message = f"Failed to enqueue: {exc}"[:1000]
         db.commit()
+        logger.exception("failed to enqueue doc_id=%s error=%s", doc_id, exc)
         raise HTTPException(status_code=503, detail="Queue unavailable") from exc
 
     return DocumentCreateResponse(id=doc_id, status=DocumentStatus.QUEUED)
@@ -85,6 +95,7 @@ def process_document_endpoint(
         raise HTTPException(status_code=404, detail="Document not found")
 
     try:
+        logger.info("manual process start doc_id=%s status=%s", document_id, document.status)
         process_document(db, document_id)
     except ValueError as exc:
         # нет файла / пустой текст и т.п. - уже записано как  failed в processor
@@ -93,4 +104,5 @@ def process_document_endpoint(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     document = documents_storage.get_document(db, document_id)
+    logger.info("manual process done doc_id=%s status=%s", document_id, document.status)
     return DocumentResponse.model_validate(document)

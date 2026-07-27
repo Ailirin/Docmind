@@ -6,10 +6,13 @@ from uuid import UUID
 import pika
 
 from app.core.config import settings
+from app.core.logging import configure_logging
 from app.db.session import SessionLocal
 from app.services.processor import process_document
 
-logging.basicConfig(level=logging.INFO)
+configure_logging()
+
+
 logger = logging.getLogger("docmind.worker")
 
 
