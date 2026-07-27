@@ -2,15 +2,13 @@ import json
 from pathlib import Path
 from uuid import UUID
 
-
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.storage import documents as documents_storage
-
 
 router = APIRouter()
 
@@ -29,22 +27,26 @@ def documents_list(request: Request, db: Session = Depends(get_db)):
         context={"documents": docs},
     )
 
+
 @router.get("/documents/{document_id}", response_class=HTMLResponse)
 def document_detail(
     document_id: UUID,
     request: Request,
     db: Session = Depends(get_db),
 ):
-
     document = documents_storage.get_document(db, document_id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    extraction_json = json.dumps(
-        document.extraction_result,
-        ensure_ascii=False,
-        indent=2,
-    ) if document.extraction_result else "-"
+    extraction_json = (
+        json.dumps(
+            document.extraction_result,
+            ensure_ascii=False,
+            indent=2,
+        )
+        if document.extraction_result
+        else "-"
+    )
 
     return templates.TemplateResponse(
         request=request,
@@ -53,4 +55,4 @@ def document_detail(
             "document": document,
             "extraction_json": extraction_json,
         },
-    )   
+    )

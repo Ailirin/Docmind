@@ -3,11 +3,11 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, Enum, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-
 from app.db.base import Base
+
 
 class DocumentStatus(str, enum.Enum):
     UPLOADED = "uploaded"
@@ -16,14 +16,16 @@ class DocumentStatus(str, enum.Enum):
     DONE = "done"
     FAILED = "failed"
 
+
 class DocumentType(str, enum.Enum):
     DISCHARGE = "discharge"
     PRESCRIPTION = "prescription"
     DIAGNOSIS = "diagnosis"
     UNKNOWN = "unknown"
 
+
 class Document(Base):
-    __tablename__="documents"
+    __tablename__ = "documents"
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -36,10 +38,12 @@ class Document(Base):
     extraction_result: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     status: Mapped[DocumentStatus] = mapped_column(
-        Enum(DocumentStatus, name="document_status", values_callable=lambda x: [e.value for e in x]),
+        Enum(
+            DocumentStatus, name="document_status", values_callable=lambda x: [e.value for e in x]
+        ),
         nullable=False,
         default=DocumentStatus.UPLOADED,
-        index=True # фильтр по статусу
+        index=True,  # фильтр по статусу
     )
     document_type: Mapped[DocumentType | None] = mapped_column(
         Enum(DocumentType, name="document_type", values_callable=lambda x: [e.value for e in x]),
@@ -52,7 +56,7 @@ class Document(Base):
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
-        index=True, # сортировка ленты
+        index=True,  # сортировка ленты
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

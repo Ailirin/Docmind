@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 import pytest
@@ -22,7 +22,7 @@ def client(monkeypatch, tmp_path):
         return str(path)
 
     def fake_add_document(db, document: Document) -> Document:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         document.created_at = now
         document.updated_at = now
         store[document.id] = document

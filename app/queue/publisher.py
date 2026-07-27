@@ -1,11 +1,10 @@
 import json
 from uuid import UUID
 
-from fastapi import applications
 import pika
-from pika import connection
 
 from app.core.config import settings
+
 
 def publish_document_process(document_id: UUID) -> None:
     """
@@ -16,7 +15,7 @@ def publish_document_process(document_id: UUID) -> None:
     connection = pika.BlockingConnection(params)
     channel = connection.channel()
 
-    #durable=True - очередь переживает рестарт брокера
+    # durable=True - очередь переживает рестарт брокера
     channel.queue_declare(queue=settings.rabbitmq_queue, durable=True)
 
     body = json.dumps({"document_id": str(document_id)})

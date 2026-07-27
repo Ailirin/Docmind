@@ -4,6 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+
 class DocumentStatus(str, Enum):
     UPLOADED = "uploaded"
     QUEUED = "queued"
@@ -24,9 +25,10 @@ class DocumentCreateResponse(BaseModel):
     status: DocumentStatus
     message: str = "Document accepted for processing"
 
+
 class DocumentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: UUID
     filename: str
     storage_path: str | None = None
@@ -38,8 +40,8 @@ class DocumentResponse(BaseModel):
     extracted_text: str | None = None
     extraction_result: dict | None = None
 
+
 class HealthResponse(BaseModel):
     status: str = "ok"
     app: str
     version: str
-

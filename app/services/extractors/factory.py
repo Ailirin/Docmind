@@ -1,6 +1,6 @@
 from app.core.config import settings
 from app.services.extractors.base import EntityExtractor
-from app.services.extractors.mock import MockEntityExtractor 
+from app.services.extractors.mock import MockEntityExtractor
 
 
 def get_extractor() -> EntityExtractor:

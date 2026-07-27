@@ -26,7 +26,7 @@ def process_document(db: Session, document_id: UUID) -> None:
         text = extract_text_from_pdf(document.storage_path)
         if not text:
             raise ValueError("No text extracted from PDF")
-        
+
         doc_type = classify_document(text)
         extraction = get_extractor().extract(text, doc_type)
 

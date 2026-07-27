@@ -7,16 +7,16 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.models.document import Document
 from app.models.document import DocumentStatus as ModelDocumentStatus
+from app.queue.publisher import publish_document_process
 from app.schemas.document import (
-    DocumentResponse,
     DocumentCreateResponse,
+    DocumentResponse,
     DocumentStatus,
     HealthResponse,
 )
 from app.services.file_storage import save_upload
 from app.services.processor import process_document
 from app.storage import documents as documents_storage
-from app.queue.publisher import publish_document_process
 
 router = APIRouter()
 
@@ -35,7 +35,7 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
     doc_id = uuid4()
-    
+
     data = await file.read()
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
@@ -48,12 +48,12 @@ async def upload_document(
         id=doc_id,
         filename=file.filename,
         storage_path=storage_path,
-        status=ModelDocumentStatus.QUEUED, # файл есть - готов к обработке
+        status=ModelDocumentStatus.QUEUED,  # файл есть - готов к обработке
         document_type=None,
     )
     documents_storage.add_document(db, document)
 
-    try: 
+    try:
         publish_document_process(doc_id)
     except Exception as exc:
         document.status = ModelDocumentStatus.FAILED
@@ -72,7 +72,8 @@ def get_document(
     document = documents_storage.get_document(db, document_id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
-    return DocumentResponse.model_validate(document)  
+    return DocumentResponse.model_validate(document)
+
 
 @router.post("/documents/{document_id}/process", response_model=DocumentResponse)
 def process_document_endpoint(
@@ -89,7 +90,7 @@ def process_document_endpoint(
         # нет файла / пустой текст и т.п. - уже записано как  failed в processor
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except FileNotFoundError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc  
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     document = documents_storage.get_document(db, document_id)
-    return DocumentResponse.model_validate(document) 
+    return DocumentResponse.model_validate(document)
