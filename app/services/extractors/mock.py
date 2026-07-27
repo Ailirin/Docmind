@@ -1,3 +1,5 @@
+"""Mock-экстрактор: regex/эвристики без LLM (стабильно для тестов и демо)."""
+
 import re
 from datetime import date
 

@@ -1,3 +1,5 @@
+"""HTML-админка: список документов и карточка с текстом/JSON результата."""
+
 import json
 from pathlib import Path
 from uuid import UUID

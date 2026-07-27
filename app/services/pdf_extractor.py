@@ -1,3 +1,5 @@
+"""Извлечение текста из PDF через PyMuPDF."""
+
 from pathlib import Path
 
 import fitz

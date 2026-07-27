@@ -1,3 +1,5 @@
+"""Rule-based классификация типа медицинского документа по ключевым словам."""
+
 from app.models.document import DocumentType
 
 RULES: list[tuple[DocumentType, tuple[str, ...]]] = [

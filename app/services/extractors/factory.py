@@ -1,3 +1,5 @@
+"""Фабрика экстракторов: выбирает mock или llm по EXTRACTOR_PROVIDER."""
+
 from app.core.config import settings
 from app.services.extractors.base import EntityExtractor
 from app.services.extractors.mock import MockEntityExtractor

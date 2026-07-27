@@ -69,7 +69,7 @@ FastAPI  POST /api/v1/documents
 | PDF | PyMuPDF (`fitz`) |
 | LLM | OpenAI Python SDK → Ollama / Mistral (OpenAI-compatible) |
 | Админка | Jinja2 |
-| Тесты | pytest, httpx / TestClient |
+| Тесты | pytest, httpx / TestClient, pytest-cov (~78%) |
 | Линтинг | Ruff (`check` + `format`) |
 | CI | GitHub Actions (lint + test) |
 | Инфра | Docker Compose, multi-stage Dockerfile |
@@ -415,15 +415,33 @@ docker compose logs -f worker
 pytest -v
 ```
 
-Покрытие:
+По умолчанию `pytest` считает coverage для пакета `app` (см. `pytest.ini`) и пишет:
+
+- текстовый отчёт в терминал (`term-missing`)
+- HTML-отчёт в `htmlcov/index.html`
+
+Примеры:
+
+```powershell
+pytest -v
+start htmlcov\index.html
+```
+
+Текущее общее покрытие: около `78%` (полный прогон `pytest`; частичный запуск одного файла даёт заниженные цифры).
+
+Покрытие тестами:
 
 - классификатор (`test_classifier.py`)
 - mock-экстрактор (`test_mock_extractor.py`)
 - PDF-extractor (`test_pdf_extractor.py`)
 - Pydantic-схемы (`test_extraction_schema.py`)
-- API через `TestClient` с моками БД/очереди/диска (`test_api.py`)
+- пайплайн `process_document` (`test_processor.py`)
+- фабрика экстракторов mock/llm/unknown (`test_factory.py`)
+- API через `TestClient` с моками БД/очереди/диска (`test_api.py`), включая `POST /documents/{id}/process`
 
-Конфиг: `pytest.ini` (`pythonpath = .`).
+Слабо покрыты намеренно: `worker.py` (RabbitMQ consumer), `llm.py` (реальный LLM в CI не гоняем).
+
+Конфиг: `pytest.ini` (`pythonpath = .`, `--cov=app`, `--cov-report=term-missing`, `--cov-report=html`).
 
 ---
 
@@ -433,7 +451,7 @@ pytest -v
 
 | Файл | Роль |
 |------|------|
-| `requirements-dev.txt` | `ruff==0.12.5` (только для разработки и CI lint) |
+| `requirements-dev.txt` | dev-зависимости: `ruff`, `pytest-cov` |
 | `ruff.toml` | правила `check` + `format` |
 
 Установка:
@@ -475,7 +493,7 @@ ruff format app tests
 
 Target: Python 3.12, `line-length = 100`, кавычки double.
 
-Ruff **не** ставится в runtime-образ: в Docker/`requirements.txt` его нет, только в `requirements-dev.txt` и job `lint`.
+Ruff **не** ставится в runtime-образ: в Docker/`requirements.txt` его нет, только в `requirements-dev.txt` и CI.
 
 ---
 
@@ -485,8 +503,9 @@ Workflow: `.github/workflows/ci.yml`
 
 - Триггеры: `push` / `pull_request` в `main` / `master` / `develop`
 - Job `lint`: Python 3.12 → `pip install -r requirements-dev.txt` → `ruff check` + `ruff format --check`
-- Job `test`: Python 3.12 → `pip install -r requirements.txt` → `pytest -v`
-- Jobs независимы: lint не тянет зависимости приложения, test не ставит Ruff
+- Job `test`: Python 3.12 → `pip install -r requirements.txt` + `pip install -r requirements-dev.txt` → `pytest -v`
+- В `test` job дополнительно считается coverage для `app`
+- Jobs независимы: lint не тянет runtime-зависимости приложения
 - Без поднятия Postgres/Rabbit/Ollama — API-тесты используют моки
 
 ---

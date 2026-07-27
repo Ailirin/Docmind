@@ -1,3 +1,5 @@
+"""ORM-модель Document и enum статусов/типов документа."""
+
 import enum
 import uuid
 from datetime import datetime

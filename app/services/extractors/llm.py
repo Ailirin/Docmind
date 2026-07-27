@@ -1,3 +1,5 @@
+"""LLM-экстрактор: OpenAI-compatible API + валидация ответа через Pydantic."""
+
 import json
 import re
 

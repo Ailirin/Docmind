@@ -1,3 +1,5 @@
+"""REST API v1: health, загрузка PDF, получение документа, ручной process."""
+
 import logging
 from uuid import UUID, uuid4
 

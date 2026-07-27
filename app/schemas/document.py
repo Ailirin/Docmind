@@ -1,3 +1,5 @@
+"""Pydantic-схемы ответов API для документов и health."""
+
 from datetime import datetime
 from enum import Enum
 from uuid import UUID

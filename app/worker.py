@@ -1,3 +1,5 @@
+"""Consumer RabbitMQ: читает document_id и запускает process_document."""
+
 import json
 import logging
 import time

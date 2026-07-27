@@ -1,3 +1,5 @@
+"""API-тесты: TestClient + моки диска/БД/очереди."""
+
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
@@ -128,3 +130,61 @@ def test_upload_returns_503_when_queue_fails(client, monkeypatch):
     # документ в store уже есть и помечен failed
     doc = next(iter(store.values()))
     assert doc.status == ModelDocumentStatus.FAILED
+
+def test_process_document_endpoint_success(client, monkeypatch):
+    test_client, store = client
+    doc_id = uuid4()
+    now = datetime.now(UTC)
+    store[doc_id] = Document(
+        id=doc_id,
+        filename="test.pdf",
+        storage_path="uploads/test.pdf",
+        status=ModelDocumentStatus.QUEUED,
+        created_at=now,
+        updated_at=now,
+    )
+
+    def fake_process(db, document_id: UUID) -> None:
+        store[document_id].status = ModelDocumentStatus.DONE
+        store[document_id].extracted_text = "extracted"
+
+    monkeypatch.setattr("app.api.v1.router.process_document", fake_process)
+
+    response = test_client.post(f"/api/v1/documents/{doc_id}/process")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["id"] == str(doc_id)
+    assert body["status"] == "done"
+    assert body["extracted_text"] == "extracted"
+
+def test_process_document_endpoint_not_found(client):
+    test_client, _ = client
+
+    response = test_client.post(f"/api/v1/documents/{uuid4()}/process")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Document not found"
+
+def test_process_document_endpoint_value_error(client, monkeypatch):
+    test_client, store = client
+    doc_id = uuid4()
+    now = datetime.now(UTC)
+    store[doc_id] = Document(
+        id=doc_id,
+        filename="test.pdf",
+        storage_path="uploads/test.pdf",
+        status=ModelDocumentStatus.QUEUED,
+        created_at=now,
+        updated_at=now,
+    )
+
+    def fake_process(db, document_id: UUID) -> None:
+        raise ValueError("No text extracted from PDF")
+
+    monkeypatch.setattr("app.api.v1.router.process_document", fake_process)
+
+    response = test_client.post(f"/api/v1/documents/{doc_id}/process")
+
+    assert response.status_code == 422
+    assert "No text extracted" in response.json()["detail"]

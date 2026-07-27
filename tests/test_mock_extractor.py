@@ -1,3 +1,5 @@
+"""Unit-тесты mock-экстрактора сущностей."""
+
 from app.models.document import DocumentType
 from app.services.extractors.mock import MockEntityExtractor
 

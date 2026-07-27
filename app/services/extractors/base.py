@@ -1,3 +1,5 @@
+"""Абстрактный интерфейс экстрактора сущностей из текста документа."""
+
 from abc import ABC, abstractmethod
 
 from app.models.document import DocumentType

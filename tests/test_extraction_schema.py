@@ -1,3 +1,5 @@
+"""Unit-тесты Pydantic-схем extraction (confidence и валидация)."""
+
 import pytest
 from pydantic import ValidationError
 

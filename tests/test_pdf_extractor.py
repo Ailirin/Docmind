@@ -1,3 +1,5 @@
+"""Unit-тесты извлечения текста из PDF."""
+
 from pathlib import Path
 
 import pytest

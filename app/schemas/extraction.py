@@ -1,3 +1,5 @@
+"""Pydantic-схемы извлечённых сущностей и результата экстрактора."""
+
 from datetime import date
 from typing import Any
 
