@@ -131,6 +131,7 @@ def test_upload_returns_503_when_queue_fails(client, monkeypatch):
     doc = next(iter(store.values()))
     assert doc.status == ModelDocumentStatus.FAILED
 
+
 def test_process_document_endpoint_success(client, monkeypatch):
     test_client, store = client
     doc_id = uuid4()
@@ -158,6 +159,7 @@ def test_process_document_endpoint_success(client, monkeypatch):
     assert body["status"] == "done"
     assert body["extracted_text"] == "extracted"
 
+
 def test_process_document_endpoint_not_found(client):
     test_client, _ = client
 
@@ -165,6 +167,7 @@ def test_process_document_endpoint_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Document not found"
+
 
 def test_process_document_endpoint_value_error(client, monkeypatch):
     test_client, store = client

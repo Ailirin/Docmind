@@ -1,14 +1,15 @@
 """Unit-тесты пайплайна process_document."""
 
 from types import SimpleNamespace
-from uuid import uuid4
 from unittest.mock import MagicMock
+from uuid import uuid4
 
 import pytest
 
 from app.models.document import DocumentStatus, DocumentType
 from app.schemas.extraction import ExtractionResult
 from app.services.processor import process_document
+
 
 def make_document(**overrides):
     doc = SimpleNamespace(
@@ -25,6 +26,7 @@ def make_document(**overrides):
         setattr(doc, key, value)
     return doc
 
+
 def test_process_document_not_found(monkeypatch):
     db = MagicMock()
     doc_id = uuid4()
@@ -37,7 +39,8 @@ def test_process_document_not_found(monkeypatch):
     with pytest.raises(ValueError, match="not found"):
         process_document(db, doc_id)
 
-    db.commit.assert_not_called()   
+    db.commit.assert_not_called()
+
 
 def test_process_document_success(monkeypatch, discharge_text):
     db = MagicMock()
@@ -82,6 +85,8 @@ def test_process_document_success(monkeypatch, discharge_text):
         discharge_text,
         DocumentType.DISCHARGE,
     )
+
+
 def test_process_document_empty_text_marks_failed(monkeypatch):
     db = MagicMock()
     doc = make_document()
@@ -101,6 +106,7 @@ def test_process_document_empty_text_marks_failed(monkeypatch):
     assert doc.status == DocumentStatus.FAILED
     assert "No text extracted" in doc.error_message
     assert db.commit.call_count >= 2
+
 
 def test_process_document_extractor_error_marks_failed(monkeypatch, discharge_text):
     db = MagicMock()
