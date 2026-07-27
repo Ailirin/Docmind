@@ -3,6 +3,9 @@ from fastapi import FastAPI
 from app.admin.router import router as admin_router
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
+from app.core.logging import configure_logging
+
+configure_logging()
 
 app = FastAPI(
     title=settings.app_name,

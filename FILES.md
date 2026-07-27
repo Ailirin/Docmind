@@ -8,14 +8,42 @@
 
 | Файл | Зачем |
 |------|--------|
-| `README.md` | Полное описание проекта, запуск, API, архитектура |
+| `README.md` | Полное описание проекта, запуск, API, логи, Docker, Ruff, CI |
 | `FILES.md` | Этот файл — карта исходников |
-| `requirements.txt` | Python-зависимости |
-| `docker-compose.yml` | Postgres, RabbitMQ, Ollama |
+| `requirements.txt` | Python-зависимости runtime (API, worker, тесты) |
+| `requirements-dev.txt` | Dev-зависимости: сейчас `ruff==0.12.5` |
+| `ruff.toml` | Конфиг Ruff: select E/F/I/UP/B, ignore E501/B008, format |
+| `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (только пакеты + код) |
+| `docker-compose.yml` | Postgres, RabbitMQ, Ollama, `api`, `worker` (один образ, разный command) |
+| `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
 | `pytest.ini` | Настройки pytest (`pythonpath`, `testpaths`) |
 | `alembic.ini` | Конфиг Alembic (миграции) |
-| `.env` | Локальные секреты и настройки (не в git) |
+| `.env` | Локальные секреты и настройки (не в git), в т.ч. `LOG_LEVEL` |
 | `.gitignore` | Что не коммитить (`.env`, `venv`, `uploads`, кэш) |
+
+---
+
+## Docker
+
+| Файл | Зачем |
+|------|--------|
+| `Dockerfile` | Stage 1 `builder`: системные deps + `pip install --prefix=/install`. Stage 2 `runtime`: копирует `/install`, `app/`, Alembic; CMD = uvicorn |
+| `docker-compose.yml` | `api` / `worker` с `build: .`; shared volume uploads; healthchecks db/rabbitmq |
+| `.dockerignore` | Ускоряет build и не тащит секреты/мусор в образ |
+
+Compose: `api` делает `alembic upgrade head` при старте; `worker` — `python -m app.worker`.
+
+---
+
+## Линтинг
+
+| Файл | Зачем |
+|------|--------|
+| `requirements-dev.txt` | Ставится локально и в CI job `lint`; не нужен в Docker runtime |
+| `ruff.toml` | Единый линтер + форматтер: `ruff check`, `ruff format` |
+| `.github/workflows/ci.yml` | Job `lint` гоняет Ruff до/параллельно с `test` |
+
+Команды: `ruff check app tests`, `ruff format --check app tests` (или `--fix` / `ruff format` для правок).
 
 ---
 
@@ -23,7 +51,7 @@
 
 | Файл | Зачем |
 |------|--------|
-| `workflows/ci.yml` | CI: установка зависимостей + `pytest` на push/PR |
+| `workflows/ci.yml` | CI: job `lint` (Ruff из `requirements-dev.txt`) + job `test` (pytest из `requirements.txt`) |
 
 ---
 
@@ -31,20 +59,21 @@
 
 | Файл | Зачем |
 |------|--------|
-| `main.py` | Создаёт FastAPI-приложение, подключает API и админку |
-| `worker.py` | Consumer RabbitMQ: читает `document_id`, вызывает `process_document` |
+| `main.py` | Создаёт FastAPI-приложение, вызывает `configure_logging()`, подключает API и админку |
+| `worker.py` | Consumer RabbitMQ: читает `document_id`, вызывает `process_document`; логи старта/ack/ошибок |
 
 ### `app/core/`
 
 | Файл | Зачем |
 |------|--------|
 | `config.py` | Настройки из `.env` (БД, LLM, очередь, пути) |
+| `logging.py` | Единая настройка логов в stdout (`LOG_LEVEL`, формат, `force=True`) |
 
 ### `app/api/`
 
 | Файл | Зачем |
 |------|--------|
-| `v1/router.py` | REST API v1: health, upload, get, process |
+| `v1/router.py` | REST API v1: health, upload, get, process; логи upload / enqueue / manual process |
 
 ### `app/admin/`
 
@@ -83,7 +112,7 @@
 
 | Файл | Зачем |
 |------|--------|
-| `publisher.py` | Публикация задачи `{document_id}` в RabbitMQ |
+| `publisher.py` | Публикация задачи `{document_id}` в RabbitMQ; логи publish |
 
 ### `app/services/`
 
@@ -92,7 +121,7 @@
 | `file_storage.py` | Сохранение PDF на диск как `{uuid}.pdf` |
 | `pdf_extractor.py` | Достаёт текст из PDF (PyMuPDF) |
 | `classifier.py` | Rule-based классификация типа документа |
-| `processor.py` | Пайплайн: текст → тип → сущности → запись в БД |
+| `processor.py` | Пайплайн: текст → тип → сущности → запись в БД; логи start / classified / done / failed |
 | `extractors/base.py` | Абстрактный интерфейс экстрактора сущностей |
 | `extractors/mock.py` | Regex/эвристики без LLM (стабильно для тестов) |
 | `extractors/llm.py` | Вызов LLM + парсинг JSON + валидация Pydantic |
@@ -151,6 +180,7 @@
 | `venv/` | Виртуальное окружение Python |
 | `uploads/` | Загруженные пользователем PDF |
 | `.pytest_cache/` | Кэш pytest |
+| `.ruff_cache/` | Кэш Ruff |
 | `__pycache__/` | Байткод Python |
 
 ---
@@ -162,3 +192,5 @@
 3. **Очередь** → `app/queue/publisher.py` + `app/worker.py`  
 4. **Данные** → `app/models/` + `app/storage/` + `app/schemas/`  
 5. **Конфиг** → `app/core/config.py` + `.env`  
+6. **Логи** → `app/core/logging.py` (+ вызовы в `main.py` / `worker.py`)  
+7. **Docker** → `Dockerfile` + `docker-compose.yml` + `.dockerignore`  
