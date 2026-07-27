@@ -5,7 +5,7 @@ from openai import OpenAI
 
 from app.core.config import settings
 from app.models.document import DocumentType
-from app.schemas.extraction import MedicalExtraction, ExtractionResult
+from app.schemas.extraction import ExtractionResult, MedicalExtraction
 from app.services.extractors.base import EntityExtractor
 
 SYSTEM_PROMPT = """

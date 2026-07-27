@@ -5,7 +5,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.document import Document, DocumentStatus
+from app.models.document import Document
 
 
 def add_document(db: Session, document: Document) -> Document:
@@ -13,6 +13,7 @@ def add_document(db: Session, document: Document) -> Document:
     db.commit()
     db.refresh(document)  # подтянуть server_default(created_at)
     return document
+
 
 def get_document(db: Session, document_id: UUID) -> Document | None:
     return db.get(Document, document_id)

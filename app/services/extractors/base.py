@@ -7,4 +7,4 @@ from app.schemas.extraction import ExtractionResult
 class EntityExtractor(ABC):
     @abstractmethod
     def extract(self, text: str, document_type: DocumentType) -> ExtractionResult:
-         """Извлекает сущности из текста документа."""
+        """Извлекает сущности из текста документа."""

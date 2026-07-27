@@ -10,13 +10,15 @@ def get_upload_dir() -> Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
+
 def build_storage_path(document_id: UUID) -> Path:
     """Имя на диске = UUID.pdf - безопасно и уникально."""
     return get_upload_dir() / f"{document_id}.pdf"
 
+
 async def save_upload(document_id: UUID, data: bytes) -> str:
     """
-    Сохраняет PDF и возвращает путь строкой для метаданных. 
+    Сохраняет PDF и возвращает путь строкой для метаданных.
     sync-запись через Path.write_bytes здесь допустима для небольших файлов.
     Для очень больших PDF на проде чаще в S3 / пишут через aiofiles.
     """

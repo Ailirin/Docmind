@@ -2,6 +2,7 @@ from pathlib import Path
 
 import fitz
 
+
 def extract_text_from_pdf(storage_path: str) -> str:
     """
     Достает текст из PDF через PyMuPDF

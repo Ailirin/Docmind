@@ -1,0 +1,22 @@
+target-version = "py312"
+line-length = 100
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # bugbear
+]
+ignore = [
+    "E501", # длина строки — пока не блокируем
+    "B008", # FastAPI: Depends()/File() в defaults — ок
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011"]  # assert в тестах ок
+"alembic/*" = ["E", "F", "I", "UP", "B"]  # миграции не трогаем строго
+
+[format]
+quote-style = "double"

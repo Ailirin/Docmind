@@ -1,10 +1,9 @@
-
 from app.models.document import DocumentType
 
 RULES: list[tuple[DocumentType, tuple[str, ...]]] = [
     (
         DocumentType.PRESCRIPTION,
-        ("рецепт", "prescription", "rp:", "dosage", "дозировка", "mg", "таблет"),   
+        ("рецепт", "prescription", "rp:", "dosage", "дозировка", "mg", "таблет"),
     ),
     (
         DocumentType.DIAGNOSIS,
@@ -15,6 +14,7 @@ RULES: list[tuple[DocumentType, tuple[str, ...]]] = [
         ("выписка", "discharge", "эпикриз", "госпитализац", "выписан"),
     ),
 ]
+
 
 def classify_document(text: str) -> DocumentType:
     """Эвристическая классификация по ключевым словам"""

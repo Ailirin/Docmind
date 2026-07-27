@@ -15,12 +15,14 @@ class DiagnosisInfo(BaseModel):
 
 class TreatmentInfo(BaseModel):
     """Лечение по диагнозу."""
+
     medication: str | None = Field(default=None, description="Название препарата")
     dosage: str | None = Field(default=None, description="Дозировка")
 
 
 class MedicalExtraction(BaseModel):
     """Общая нормализованная структура для выписки/рецепта/диагноза."""
+
     patient: PatientInfo | None = None
     diagnosis: DiagnosisInfo | None = None
     treatment: TreatmentInfo | None = None
