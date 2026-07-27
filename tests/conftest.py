@@ -1,3 +1,5 @@
+"""Общие фикстуры pytest: тексты документов и путь к sample PDF."""
+
 from pathlib import Path
 
 import pytest

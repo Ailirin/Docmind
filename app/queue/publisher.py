@@ -1,3 +1,5 @@
+"""Публикация задачи обработки документа в RabbitMQ."""
+
 import json
 import logging
 from uuid import UUID

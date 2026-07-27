@@ -159,7 +159,9 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 | `test_mock_extractor.py` | Unit: mock-извлечение сущностей |
 | `test_pdf_extractor.py` | Unit: чтение PDF / отсутствие файла |
 | `test_extraction_schema.py` | Unit: валидация Pydantic (`confidence`) |
-| `test_api.py` | API: TestClient + моки диска/БД/очереди |
+| `test_processor.py` | Unit: пайплайн `process_document` (success / failed / not found) |
+| `test_factory.py` | Unit: выбор mock/llm/unknown по `EXTRACTOR_PROVIDER` |
+| `test_api.py` | API: TestClient + моки диска/БД/очереди, в т.ч. manual process |
 
 ---
 

@@ -1,4 +1,4 @@
-"""Репозиторий документов (POstgreSQL)"""
+"""Репозиторий документов в PostgreSQL: add / get / list."""
 
 from uuid import UUID
 

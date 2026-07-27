@@ -1,3 +1,5 @@
+"""Unit-тесты rule-based классификатора типа документа."""
+
 from app.models.document import DocumentType
 from app.services.classifier import classify_document
 

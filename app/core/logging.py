@@ -1,3 +1,5 @@
+"""Единая настройка логирования в stdout (удобно для Docker)."""
+
 import logging
 import os
 import sys

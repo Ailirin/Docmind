@@ -1,3 +1,5 @@
+"""Сохранение загруженных PDF на диск под именем {uuid}.pdf."""
+
 from pathlib import Path
 from uuid import UUID
 

@@ -1,3 +1,5 @@
+"""Настройки приложения из переменных окружения и файла .env."""
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

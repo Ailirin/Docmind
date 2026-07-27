@@ -1,3 +1,5 @@
+"""Точка входа FastAPI: логирование, монтирование API v1 и HTML-админки."""
+
 from fastapi import FastAPI
 
 from app.admin.router import router as admin_router

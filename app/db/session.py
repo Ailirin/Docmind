@@ -1,3 +1,5 @@
+"""Engine, SessionLocal и FastAPI-dependency get_db."""
+
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
