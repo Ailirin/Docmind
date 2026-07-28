@@ -1,17 +1,17 @@
 """Пайплайн обработки документа: текст → тип → сущности → запись в БД."""
 
-import time
 import logging
+import time
 from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION
 from app.models.document import DocumentStatus
 from app.services.classifier import classify_document
 from app.services.extractors.factory import get_extractor
 from app.services.pdf_extractor import extract_text_from_pdf
 from app.storage import documents as documents_storage
-from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION
 
 logger = logging.getLogger("docmind.processor")
 

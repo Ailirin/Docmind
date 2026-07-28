@@ -73,7 +73,7 @@ async def upload_document(
         db.commit()
         logger.exception("failed to enqueue doc_id=%s error=%s", doc_id, exc)
         raise HTTPException(status_code=503, detail="Queue unavailable") from exc
-        
+
     DOCUMENTS_UPLOADED.inc()
     return DocumentCreateResponse(id=doc_id, status=DocumentStatus.QUEUED)
 

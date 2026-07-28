@@ -4,9 +4,9 @@ import json
 import logging
 import time
 from uuid import UUID
-from prometheus_client import start_http_server
 
 import pika
+from prometheus_client import start_http_server
 
 from app.core.config import settings
 from app.core.logging import configure_logging

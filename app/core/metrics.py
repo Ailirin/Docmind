@@ -11,7 +11,7 @@ DOCUMENTS_UPLOADED = Counter(
 DOCUMENTS_PROCESSED = Counter(
     "docmind_documents_processed_total",
     "Number of processed documents",
-    ["status"], # done | failed
+    ["status"],  # done | failed
 )
 
 
