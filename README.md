@@ -22,6 +22,9 @@ DocMind принимает выписки, рецепты и диагнозы, �
 - Валидация ответа LLM через Pydantic-схемы
 - HTML-админка: список документов и страница деталей (полный текст + JSON результата)
 - Структурированное логирование в stdout (API, worker, processor, очередь)
+- Метрики Prometheus + Grafana dashboard для API и worker
+- Централизованные логи: Promtail → Loki → Grafana
+- Load-скрипт для демо метрик/логов под нагрузкой
 - Unit- и API-тесты (pytest), lint (Ruff) и CI на GitHub Actions
 
 ---
@@ -73,7 +76,7 @@ FastAPI  POST /api/v1/documents
 | Линтинг | Ruff (`check` + `format`) |
 | CI | GitHub Actions (lint + test) |
 | Инфра | Docker Compose, multi-stage Dockerfile |
-| Observability | stdout-логи (уровень через `LOG_LEVEL`) |
+| Observability | stdout-логи, Prometheus, Grafana, Loki, Promtail |
 
 ---
 
@@ -88,7 +91,8 @@ DocMind/
 │   ├── api/v1/                 # REST API v1
 │   ├── core/
 │   │   ├── config.py           # настройки из .env
-│   │   └── logging.py          # единая настройка логов (stdout)
+│   │   ├── logging.py          # единая настройка логов (stdout)
+│   │   └── metrics.py          # Prometheus counters/histogram
 │   ├── db/                     # engine, session, Base
 │   ├── models/                 # SQLAlchemy-модели
 │   ├── schemas/                # Pydantic-схемы API и extraction
@@ -102,10 +106,19 @@ DocMind/
 │   ├── queue/                  # публикация в RabbitMQ + логи
 │   └── templates/admin/        # Jinja2-шаблоны
 ├── alembic/                    # миграции БД
+├── monitoring/
+│   ├── prometheus.yml          # scrape api/worker
+│   ├── loki-config.yml         # конфиг Loki
+│   ├── promtail-config.yml     # сбор Docker logs → Loki
+│   └── grafana/
+│       ├── dashboards/         # DocMind Overview JSON
+│       └── provisioning/       # datasources + dashboard provider
+├── scripts/
+│   └── load_upload.ps1         # нагрузка: повторный upload PDF
 ├── samples/                    # тестовые PDF
 ├── tests/                      # pytest
 ├── .github/workflows/ci.yml    # CI: Ruff + pytest
-├── docker-compose.yml          # Postgres, RabbitMQ, Ollama, api, worker
+├── docker-compose.yml          # app + Prometheus/Grafana/Loki/Promtail
 ├── Dockerfile                  # multi-stage: builder + runtime
 ├── .dockerignore               # что не копировать в build-context
 ├── ruff.toml                   # правила Ruff
@@ -190,11 +203,18 @@ docker compose ps
 | `docmind-rabbitmq` | 5672, 15672 | AMQP + Management UI |
 | `docmind-ollama` | 11434 | Локальный LLM (опционально) |
 | `docmind-api` | 8000 | FastAPI (`alembic upgrade head` при старте) |
-| `docmind-worker` | — | Consumer очереди |
+| `docmind-worker` | 8001 | Consumer очереди + worker metrics |
+| `docmind-prometheus` | 9090 | Scrape и хранение метрик |
+| `docmind-grafana` | 3000 | Дашборды (метрики + логи) |
+| `docmind-loki` | 3100 | Хранилище логов |
+| `docmind-promtail` | 9080 | Сбор Docker container logs → Loki |
 
 - API / Swagger: http://127.0.0.1:8000/docs  
 - Админка: http://127.0.0.1:8000/admin/documents  
-- RabbitMQ UI: http://localhost:15672 (`docmind` / `docmind`)
+- RabbitMQ UI: http://localhost:15672 (`docmind` / `docmind`)  
+- Prometheus: http://127.0.0.1:9090  
+- Grafana: http://127.0.0.1:3000 (`admin` / `admin`)  
+- Loki ready: http://127.0.0.1:3100/ready
 
 Логи:
 
@@ -302,6 +322,89 @@ docker compose up -d --build
 docker compose logs -f api
 docker compose logs -f worker
 ```
+
+---
+
+## Метрики и мониторинг
+
+Стек observability:
+
+```text
+api/worker stdout
+        │
+        ▼
+ Docker logs ──► Promtail ──► Loki ──► Grafana (Logs)
+ api:/metrics ──► Prometheus ──► Grafana (Metrics)
+ worker:/metrics ─┘
+```
+
+### Prometheus-метрики
+
+Экспортируются из двух процессов:
+
+- `api` → `http://127.0.0.1:8000/metrics/`
+- `worker` → `http://127.0.0.1:8001/metrics`
+
+Scrape-конфиг: `monitoring/prometheus.yml`.
+
+| Метрика | Тип | Смысл |
+|--------|-----|-------|
+| `docmind_documents_uploaded_total` | Counter | документы, успешно принятые в очередь (считает API) |
+| `docmind_documents_processed_total{status}` | Counter | `done` / `failed` (считает worker) |
+| `docmind_process_duration_seconds` | Histogram | длительность обработки одного документа |
+
+```promql
+docmind_documents_uploaded_total
+docmind_documents_processed_total
+docmind_documents_processed_total{status="failed"}
+rate(docmind_process_duration_seconds_sum[5m]) / rate(docmind_process_duration_seconds_count[5m])
+```
+
+Проверка: `http://127.0.0.1:9090/targets` — оба target `UP`.
+
+### Логи: Loki + Promtail
+
+- Loki: `monitoring/loki-config.yml`, UI health `http://127.0.0.1:3100/ready`
+- Promtail читает Docker container logs и пушит в Loki (`monitoring/promtail-config.yml`)
+- В Grafana datasource Loki: `http://loki:3100` (внутри Docker-сети)
+
+Полезные LogQL-запросы (в Explore выбирайте datasource **Loki**, не Prometheus):
+
+```logql
+{job="docker"} |= "upload accepted"
+{job="docker"} |= "Processing document"
+{job="docker"} |= "docmind."
+```
+
+Важно: LogQL (`|=`) нельзя выполнять в Prometheus — будет ошибка `unexpected character: '|'`.
+
+### Grafana
+
+Provisioning из репозитория:
+
+- datasources: `monitoring/grafana/provisioning/datasources/datasources.yml` (Prometheus + Loki)
+- dashboards: `monitoring/grafana/provisioning/dashboards/dashboards.yml`
+- JSON: `monitoring/grafana/dashboards/docmind-overview.json` (папка DocMind → **DocMind Overview**)
+
+Логин: `admin` / `admin`.  
+С хоста: `http://127.0.0.1:3000`.  
+Имена сервисов (`prometheus`, `loki`) работают только внутри Docker-сети.
+
+### Нагрузка для демо
+
+Скрипт повторной загрузки PDF (Windows PowerShell + `curl.exe`):
+
+```powershell
+.\scripts\load_upload.ps1 -Count 30 -DelayMs 200
+```
+
+Перед запуском откройте Grafana (`Last 15 minutes`, refresh 5–10s) и при желании:
+
+```powershell
+docker compose logs -f api worker
+```
+
+Для load test лучше `EXTRACTOR_PROVIDER=mock` (LLM сильно замедляет обработку).
 
 ---
 
@@ -534,13 +637,16 @@ alembic downgrade -1
 | `ModuleNotFoundError: app` | Запуск из корня проекта; есть `pytest.ini` |
 | Сборка Docker тянет `venv` / огромный context | Проверьте `.dockerignore` |
 | В контейнере нет `.env` | Нормально: переменные задаются в `docker-compose.yml` |
+| Grafana Logs: `unexpected character: '\|'` | LogQL отправлен в Prometheus — выберите datasource Loki |
+| Панель логов пустая, Explore Loki ок | Проверьте datasource панели = Loki и время Last 1h/6h |
+| Loki `/ready` не ready | Подождите 15–30с после старта или смотрите `docker logs docmind-loki` |
+| `Invoke-RestMethod -Form` не работает | Windows PowerShell 5.1 — используйте `scripts/load_upload.ps1` (curl.exe) |
 
 ---
 
 ## Что можно добавить дальше
 
-- Prometheus / Grafana (метрики очереди, latency, failed)
-- JSON-логи + централизованный сбор (Loki / ELK)
+- Labels в Promtail (`container` / `compose_service`) для удобных LogQL-фильтров
 - `request_id` / корреляция HTTP ↔ worker по `document_id`
 - Eval-набор и честные метрики качества классификации / сущностей
 - Auth для админки

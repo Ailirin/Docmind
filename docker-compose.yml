@@ -75,6 +75,8 @@ services:
 
   worker:
     build: .
+    ports:
+      - "8001:8001"
     container_name: docmind-worker
     environment:
       APP_NAME: DocMind
@@ -99,8 +101,68 @@ services:
     command: ["python", "-m", "app.worker"]
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: docmind-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - docmind_prometheus:/prometheus
+    depends_on:
+      - api
+      - worker
+    restart: unless-stopped
+  
+  grafana:
+    image: grafana/grafana:latest
+    container_name: docmind-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - docmind_grafana:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:latest
+    container_name: docmind-loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/config.yml:ro
+      - docmind_loki:/loki
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: docmind-promtail
+    command: -config.file=/etc/promtail/config.yml
+    ports:
+      - "9080:9080"
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+
 volumes:
   docmind_pgdata:
   docmind_ollama:
   docmind_rabbitmq:
   docmind_uploads:
+  docmind_prometheus:
+  docmind_grafana:
+  docmind_loki:

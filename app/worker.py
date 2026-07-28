@@ -6,6 +6,7 @@ import time
 from uuid import UUID
 
 import pika
+from prometheus_client import start_http_server
 
 from app.core.config import settings
 from app.core.logging import configure_logging
@@ -36,6 +37,8 @@ def handle_message(ch, method, properties, body: bytes) -> None:
 
 
 def main() -> None:
+    start_http_server(8001)
+    logger.info("Worker metrics on :8001/metrics")
     params = pika.URLParameters(settings.rabbitmq_url)
 
     connection = None

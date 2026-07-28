@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.metrics import DOCUMENTS_UPLOADED
 from app.db.session import get_db
 from app.models.document import Document
 from app.models.document import DocumentStatus as ModelDocumentStatus
@@ -73,6 +74,7 @@ async def upload_document(
         logger.exception("failed to enqueue doc_id=%s error=%s", doc_id, exc)
         raise HTTPException(status_code=503, detail="Queue unavailable") from exc
 
+    DOCUMENTS_UPLOADED.inc()
     return DocumentCreateResponse(id=doc_id, status=DocumentStatus.QUEUED)
 
 
