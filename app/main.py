@@ -1,9 +1,11 @@
 """Точка входа FastAPI: логирование, монтирование API v1 и HTML-админки."""
 
 from fastapi import FastAPI
+from prometheus_client import make_asgi_app
 
 from app.admin.router import router as admin_router
 from app.api.v1.router import router as v1_router
+from app.core import metrics
 from app.core.config import settings
 from app.core.logging import configure_logging
 
@@ -19,3 +21,6 @@ app = FastAPI(
 
 app.include_router(v1_router, prefix=settings.api_v1_prefix)
 app.include_router(admin_router, prefix="/admin", tags=["admin"])
+
+metrics_app = make_asgi_app()
+app.mount("/metrics", metrics_app)

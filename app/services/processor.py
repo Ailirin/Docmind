@@ -1,5 +1,6 @@
 """Пайплайн обработки документа: текст → тип → сущности → запись в БД."""
 
+import time
 import logging
 from uuid import UUID
 
@@ -10,6 +11,7 @@ from app.services.classifier import classify_document
 from app.services.extractors.factory import get_extractor
 from app.services.pdf_extractor import extract_text_from_pdf
 from app.storage import documents as documents_storage
+from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION
 
 logger = logging.getLogger("docmind.processor")
 
@@ -28,6 +30,7 @@ def process_document(db: Session, document_id: UUID) -> None:
     document.error_message = None
     db.commit()
 
+    started = time.perf_counter()
     try:
         text = extract_text_from_pdf(document.storage_path)
         if not text:
@@ -43,9 +46,14 @@ def process_document(db: Session, document_id: UUID) -> None:
         document.status = DocumentStatus.DONE
         logger.info("processing done doc_id=%s", document_id)
         db.commit()
+        DOCUMENTS_PROCESSED.labels(status="done").inc()
+        PROCESS_DURATION.observe(time.perf_counter() - started)
+
     except Exception as exc:
         document.status = DocumentStatus.FAILED
         document.error_message = str(exc)[:1000]
         db.commit()
         logger.exception("processing failed doc_id=%s error=%s", document_id, exc)
+        DOCUMENTS_PROCESSED.labels(status="failed").inc()
+        PROCESS_DURATION.observe(time.perf_counter() - started)
         raise

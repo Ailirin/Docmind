@@ -11,3 +11,4 @@ openai==2.47.0
 pika==1.4.2
 pytest==9.1.1
 httpx==0.28.1
+prometheus-client==0.22.1

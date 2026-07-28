@@ -8,14 +8,15 @@
 
 | Файл | Зачем |
 |------|--------|
-| `README.md` | Полное описание проекта, запуск, API, логи, Docker, Ruff, CI |
+| `README.md` | Полное описание проекта, запуск, API, логи, метрики, Loki, Docker, CI |
 | `FILES.md` | Этот файл — карта исходников |
-| `requirements.txt` | Python-зависимости runtime (API, worker, тесты) |
+| `requirements.txt` | Python-зависимости runtime (API, worker, метрики, тесты) |
 | `requirements-dev.txt` | Dev-зависимости: сейчас `ruff==0.12.5` |
 | `ruff.toml` | Конфиг Ruff: select E/F/I/UP/B, ignore E501/B008, format |
 | `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (только пакеты + код) |
-| `docker-compose.yml` | Postgres, RabbitMQ, Ollama, `api`, `worker` (один образ, разный command) |
+| `docker-compose.yml` | App + Prometheus, Grafana, Loki, Promtail |
 | `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
+| `scripts/load_upload.ps1` | Нагрузка: повторный `POST /documents` через curl.exe |
 | `pytest.ini` | Настройки pytest (`pythonpath`, `testpaths`) |
 | `alembic.ini` | Конфиг Alembic (миграции) |
 | `.env` | Локальные секреты и настройки (не в git), в т.ч. `LOG_LEVEL` |
@@ -28,10 +29,32 @@
 | Файл | Зачем |
 |------|--------|
 | `Dockerfile` | Stage 1 `builder`: системные deps + `pip install --prefix=/install`. Stage 2 `runtime`: копирует `/install`, `app/`, Alembic; CMD = uvicorn |
-| `docker-compose.yml` | `api` / `worker` с `build: .`; shared volume uploads; healthchecks db/rabbitmq |
+| `docker-compose.yml` | `api` / `worker` + monitoring stack; shared volume uploads; healthchecks db/rabbitmq |
 | `.dockerignore` | Ускоряет build и не тащит секреты/мусор в образ |
 
 Compose: `api` делает `alembic upgrade head` при старте; `worker` — `python -m app.worker`.
+
+---
+
+## Monitoring
+
+| Файл | Зачем |
+|------|--------|
+| `app/core/metrics.py` | Prometheus `Counter` / `Histogram` |
+| `app/main.py` | ASGI endpoint `/metrics/` для API |
+| `app/worker.py` | HTTP metrics на `:8001/metrics` |
+| `monitoring/prometheus.yml` | Scrape `api:8000/metrics/` и `worker:8001/metrics` |
+| `monitoring/loki-config.yml` | Конфиг Loki (порт 3100) |
+| `monitoring/promtail-config.yml` | Сбор Docker logs → push в Loki |
+| `monitoring/grafana/provisioning/datasources/datasources.yml` | Datasources Prometheus + Loki |
+| `monitoring/grafana/provisioning/dashboards/dashboards.yml` | Provider папки dashboards |
+| `monitoring/grafana/dashboards/docmind-overview.json` | Dashboard DocMind Overview |
+| `scripts/load_upload.ps1` | Генерация нагрузки для демо метрик/логов |
+
+Порты с хоста: Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.  
+Внутри Docker-сети Grafana ходит на `http://prometheus:9090` и `http://loki:3100`.
+
+LogQL только в datasource Loki. Пример: `{job="docker"} |= "upload accepted"`.
 
 ---
 
@@ -59,8 +82,8 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 
 | Файл | Зачем |
 |------|--------|
-| `main.py` | Создаёт FastAPI-приложение, вызывает `configure_logging()`, подключает API и админку |
-| `worker.py` | Consumer RabbitMQ: читает `document_id`, вызывает `process_document`; логи старта/ack/ошибок |
+| `main.py` | Создаёт FastAPI-приложение, вызывает `configure_logging()`, подключает API/админку и `/metrics/` |
+| `worker.py` | Consumer RabbitMQ: читает `document_id`, вызывает `process_document`; логи старта/ack/ошибок и метрики на `:8001` |
 
 ### `app/core/`
 
@@ -68,6 +91,7 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 |------|--------|
 | `config.py` | Настройки из `.env` (БД, LLM, очередь, пути) |
 | `logging.py` | Единая настройка логов в stdout (`LOG_LEVEL`, формат, `force=True`) |
+| `metrics.py` | Prometheus-счётчики и histogram для upload/process |
 
 ### `app/api/`
 
@@ -121,7 +145,7 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 | `file_storage.py` | Сохранение PDF на диск как `{uuid}.pdf` |
 | `pdf_extractor.py` | Достаёт текст из PDF (PyMuPDF) |
 | `classifier.py` | Rule-based классификация типа документа |
-| `processor.py` | Пайплайн: текст → тип → сущности → запись в БД; логи start / classified / done / failed |
+| `processor.py` | Пайплайн: текст → тип → сущности → запись в БД; логи, счётчики done/failed и latency |
 | `extractors/base.py` | Абстрактный интерфейс экстрактора сущностей |
 | `extractors/mock.py` | Regex/эвристики без LLM (стабильно для тестов) |
 | `extractors/llm.py` | Вызов LLM + парсинг JSON + валидация Pydantic |
@@ -195,4 +219,7 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 4. **Данные** → `app/models/` + `app/storage/` + `app/schemas/`  
 5. **Конфиг** → `app/core/config.py` + `.env`  
 6. **Логи** → `app/core/logging.py` (+ вызовы в `main.py` / `worker.py`)  
-7. **Docker** → `Dockerfile` + `docker-compose.yml` + `.dockerignore`  
+7. **Метрики** → `app/core/metrics.py` + `/metrics/` + `monitoring/prometheus.yml`  
+8. **Логи в Grafana** → Promtail + Loki + `monitoring/grafana/`  
+9. **Docker** → `Dockerfile` + `docker-compose.yml` + `.dockerignore`  
+10. **Нагрузка** → `scripts/load_upload.ps1`  
