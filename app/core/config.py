@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     llm_base_url: str = "http://127.0.0.1:11434/v1"
     rabbitmq_url: str = "amqp://docmind:docmind@localhost:5672/"
     rabbitmq_queue: str = "documents.process"
+    rabbitmq_dlq: str = "documents.process.dlq"
 
 
 settings = Settings()

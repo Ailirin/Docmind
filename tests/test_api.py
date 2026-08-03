@@ -33,7 +33,7 @@ def client(monkeypatch, tmp_path):
     def fake_get_document(db, document_id: UUID) -> Document | None:
         return store.get(document_id)
 
-    def fake_publish(document_id: UUID) -> None:
+    def fake_publish(document_id: UUID, request_id: str | None = None) -> None:
         return None  # очередь «успешна»
 
     monkeypatch.setattr("app.api.v1.router.save_upload", fake_save_upload)
@@ -117,7 +117,7 @@ def test_get_document_after_upload(client):
 def test_upload_returns_503_when_queue_fails(client, monkeypatch):
     test_client, store = client
 
-    def broken_publish(document_id: UUID) -> None:
+    def broken_publish(document_id: UUID, request_id: str | None = None) -> None:
         raise RuntimeError("rabbit down")
 
     monkeypatch.setattr("app.api.v1.router.publish_document_process", broken_publish)
