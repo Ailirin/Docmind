@@ -272,7 +272,7 @@
               "uid": "loki"
             },
             "editorMode": "code",
-            "expr": "{job=\"docker\"} |= \"docmind\"",
+            "expr": "{compose_service=~\"api|worker\"} |= \"docmind\"",
             "queryType": "range",
             "refId": "A"
           }
@@ -288,13 +288,13 @@
       "list": []
     },
     "time": {
-      "from": "now-15m",
+      "from": "now-6h",
       "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "DocMind Overview",
     "uid": "docmind-overview",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
   }

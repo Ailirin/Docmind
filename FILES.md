@@ -19,7 +19,8 @@
 | `scripts/load_upload.ps1` | Нагрузка: повторный `POST /documents` через curl.exe |
 | `pytest.ini` | Настройки pytest (`pythonpath`, `testpaths`) |
 | `alembic.ini` | Конфиг Alembic (миграции) |
-| `.env` | Локальные секреты и настройки (не в git), в т.ч. `LOG_LEVEL` |
+| `.env.example` | Шаблон переменных окружения (в git); копировать в `.env` |
+| `.env` | Локальные секреты и настройки (не в git), опционально `LOG_LEVEL` |
 | `.gitignore` | Что не коммитить (`.env`, `venv`, `uploads`, кэш) |
 
 ---
@@ -45,7 +46,7 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 | `app/worker.py` | HTTP metrics на `:8001/metrics` |
 | `monitoring/prometheus.yml` | Scrape `api:8000/metrics/` и `worker:8001/metrics` |
 | `monitoring/loki-config.yml` | Конфиг Loki (порт 3100) |
-| `monitoring/promtail-config.yml` | Сбор Docker logs → push в Loki |
+| `monitoring/promtail-config.yml` | Docker SD → лейблы `container` / `compose_service` → push в Loki |
 | `monitoring/grafana/provisioning/datasources/datasources.yml` | Datasources Prometheus + Loki |
 | `monitoring/grafana/provisioning/dashboards/dashboards.yml` | Provider папки dashboards |
 | `monitoring/grafana/dashboards/docmind-overview.json` | Dashboard DocMind Overview |
@@ -54,7 +55,7 @@ Compose: `api` делает `alembic upgrade head` при старте; `worker`
 Порты с хоста: Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.  
 Внутри Docker-сети Grafana ходит на `http://prometheus:9090` и `http://loki:3100`.
 
-LogQL только в datasource Loki. Пример: `{job="docker"} |= "upload accepted"`.
+LogQL только в datasource Loki. Примеры: `{compose_service="api"}`, `{compose_service=~"api|worker"} |= "request_id="`.
 
 ---
 
@@ -82,15 +83,15 @@ LogQL только в datasource Loki. Пример: `{job="docker"} |= "upload 
 
 | Файл | Зачем |
 |------|--------|
-| `main.py` | Создаёт FastAPI-приложение, вызывает `configure_logging()`, подключает API/админку и `/metrics/` |
-| `worker.py` | Consumer RabbitMQ: читает `document_id`, вызывает `process_document`; логи старта/ack/ошибок и метрики на `:8001` |
+| `main.py` | FastAPI, `RequestIdMiddleware` (`X-Request-ID`), API/админка, `/metrics/` |
+| `worker.py` | Consumer: `document_id` + `request_id`; при ошибке `nack` → DLQ; метрики `:8001` |
 
 ### `app/core/`
 
 | Файл | Зачем |
 |------|--------|
-| `config.py` | Настройки из `.env` (БД, LLM, очередь, пути) |
-| `logging.py` | Единая настройка логов в stdout (`LOG_LEVEL`, формат, `force=True`) |
+| `config.py` | Настройки из `.env` (БД, LLM, `rabbitmq_queue` / `rabbitmq_dlq`, пути) |
+| `logging.py` | stdout-логи, `request_id` ContextVar + Filter, хелперы set/get/clear |
 | `metrics.py` | Prometheus-счётчики и histogram для upload/process |
 
 ### `app/api/`
@@ -136,7 +137,8 @@ LogQL только в datasource Loki. Пример: `{job="docker"} |= "upload 
 
 | Файл | Зачем |
 |------|--------|
-| `publisher.py` | Публикация задачи `{document_id}` в RabbitMQ; логи publish |
+| `setup.py` | `declare_process_queues`: основная очередь + DLQ (`x-dead-letter-*`) |
+| `publisher.py` | Публикация `{document_id, request_id}` в RabbitMQ |
 
 ### `app/services/`
 
@@ -215,9 +217,9 @@ LogQL только в datasource Loki. Пример: `{job="docker"} |= "upload 
 
 1. **HTTP** → `app/api/v1/router.py`, `app/admin/router.py`  
 2. **Бизнес-пайплайн** → `app/services/processor.py`  
-3. **Очередь** → `app/queue/publisher.py` + `app/worker.py`  
+3. **Очередь** → `app/queue/setup.py` + `publisher.py` + `app/worker.py` (DLQ)  
 4. **Данные** → `app/models/` + `app/storage/` + `app/schemas/`  
-5. **Конфиг** → `app/core/config.py` + `.env`  
+5. **Конфиг** → `app/core/config.py` + `.env.example` / `.env`  
 6. **Логи** → `app/core/logging.py` (+ вызовы в `main.py` / `worker.py`)  
 7. **Метрики** → `app/core/metrics.py` + `/metrics/` + `monitoring/prometheus.yml`  
 8. **Логи в Grafana** → Promtail + Loki + `monitoring/grafana/`  

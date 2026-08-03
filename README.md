@@ -14,6 +14,7 @@ DocMind принимает выписки, рецепты и диагнозы, �
 - Сохранение файла на диск под именем `{uuid}.pdf` (без path traversal и коллизий имён)
 - Метаданные и статусы в PostgreSQL (SQLAlchemy + Alembic)
 - Асинхронная обработка через RabbitMQ + отдельный worker-процесс
+- Dead Letter Queue (`documents.process.dlq`) для сообщений после `nack(requeue=False)`
 - Извлечение текста: **PyMuPDF**
 - Классификация типа документа: rule-based (ключевые слова)
 - Извлечение сущностей:
@@ -38,13 +39,16 @@ DocMind принимает выписки, рецепты и диагнозы, �
 FastAPI  POST /api/v1/documents
   │  1) сохранить PDF → uploads/
   │  2) запись в PostgreSQL (status=queued)
-  │  3) publish {document_id} → RabbitMQ
+  │  3) publish {document_id, request_id} → RabbitMQ
   │
   └────────────► 202 Accepted + id
                       │
                       ▼
-                 RabbitMQ queue
+                 RabbitMQ
                  documents.process
+                      │
+                      ├─ success → ack
+                      └─ failure → nack(requeue=False) → documents.process.dlq
                       │
                       ▼
                    Worker
@@ -85,8 +89,8 @@ FastAPI  POST /api/v1/documents
 ```text
 DocMind/
 ├── app/
-│   ├── main.py                 # точка входа FastAPI + configure_logging()
-│   ├── worker.py               # consumer RabbitMQ + логи
+│   ├── main.py                 # FastAPI + RequestId middleware + /metrics
+│   ├── worker.py               # consumer + request_id; nack → DLQ
 │   ├── admin/                  # HTML-админка
 │   ├── api/v1/                 # REST API v1
 │   ├── core/
@@ -103,13 +107,13 @@ DocMind/
 │   │   ├── processor.py        # пайплайн обработки + логи статусов
 │   │   └── extractors/         # mock + llm + factory
 │   ├── storage/                # репозиторий документов
-│   ├── queue/                  # публикация в RabbitMQ + логи
+│   ├── queue/                  # publisher + declare queues/DLQ
 │   └── templates/admin/        # Jinja2-шаблоны
 ├── alembic/                    # миграции БД
 ├── monitoring/
 │   ├── prometheus.yml          # scrape api/worker
 │   ├── loki-config.yml         # конфиг Loki
-│   ├── promtail-config.yml     # сбор Docker logs → Loki
+│   ├── promtail-config.yml     # Docker SD → Loki (compose_service и др.)
 │   └── grafana/
 │       ├── dashboards/         # DocMind Overview JSON
 │       └── provisioning/       # datasources + dashboard provider
@@ -125,6 +129,7 @@ DocMind/
 ├── requirements.txt
 ├── requirements-dev.txt        # ruff и прочие dev-зависимости
 ├── pytest.ini
+├── .env.example                # шаблон переменных окружения (в git)
 └── .env                        # локальные секреты (не в git)
 ```
 
@@ -151,31 +156,16 @@ pip install -r requirements.txt
 
 ### 2. Переменные окружения
 
-Создайте файл `.env` в корне:
+Скопируйте `.env.example` → `.env` и при необходимости поправьте значения:
 
-```env
-APP_NAME=DocMind
-APP_VERSION=0.1.0
-API_V1_PREFIX=/api/v1
-UPLOAD_DIR=uploads
-
-DATABASE_URL=postgresql+psycopg2://docmind:docmind@localhost:5432/docmind
-
-# mock — без LLM; llm — Ollama/Mistral
-EXTRACTOR_PROVIDER=mock
-
-LLM_BASE_URL=http://127.0.0.1:11434/v1
-LLM_MODEL=llama3.2:1b
-LLM_API_KEY=ollama
-
-RABBITMQ_URL=amqp://docmind:docmind@localhost:5672/
-RABBITMQ_QUEUE=documents.process
-
-# уровень логов: DEBUG | INFO | WARNING | ERROR
-LOG_LEVEL=INFO
+```powershell
+Copy-Item .env.example .env
 ```
 
-Для облака Mistral (вместо Ollama):
+В шаблоне: БД, RabbitMQ, `EXTRACTOR_PROVIDER` (`mock` / `llm`), параметры LLM.  
+Опционально добавьте в `.env`: `LOG_LEVEL=INFO` (`DEBUG` | `INFO` | `WARNING` | `ERROR`).
+
+Для облака Mistral (вместо Ollama) в `.env`:
 
 ```env
 EXTRACTOR_PROVIDER=llm
@@ -184,7 +174,7 @@ LLM_MODEL=mistral-small-latest
 LLM_API_KEY=ваш_ключ
 ```
 
-Секреты не коммитьте: `.env` уже в `.gitignore`.
+Секреты не коммитьте: `.env` в `.gitignore`. Шаблон `.env.example` — в репозитории.
 
 ### 3. Запуск через Docker Compose (рекомендуется для демо)
 
@@ -207,7 +197,7 @@ docker compose ps
 | `docmind-prometheus` | 9090 | Scrape и хранение метрик |
 | `docmind-grafana` | 3000 | Дашборды (метрики + логи) |
 | `docmind-loki` | 3100 | Хранилище логов |
-| `docmind-promtail` | 9080 | Сбор Docker container logs → Loki |
+| `docmind-promtail` | 9080 | Docker SD: логи контейнеров → Loki (`compose_service`) |
 
 - API / Swagger: http://127.0.0.1:8000/docs  
 - Админка: http://127.0.0.1:8000/admin/documents  
@@ -257,7 +247,7 @@ uvicorn app.main:app --reload
 python -m app.worker
 ```
 
-В `.env` для локального режима хосты — `localhost` (см. пример выше).
+В `.env` для локального режима хосты — `localhost` (см. `.env.example`).
 
 - Swagger: http://127.0.0.1:8000/docs  
 - Админка: http://127.0.0.1:8000/admin/documents  
@@ -298,6 +288,44 @@ docker compose up -d --build
 ## Логирование
 
 Логи пишутся в **stdout** (удобно для локального запуска и Docker). Единая настройка — `app/core/logging.py`; вызывается при старте API (`app/main.py`) и worker (`app/worker.py`).
+
+### Корреляция: `request_id`
+
+Сквозной id связывает HTTP → очередь → worker:
+
+1. Middleware в `app/main.py` берёт заголовок `X-Request-ID` или генерирует UUID, кладёт в ContextVar, возвращает тот же id в ответе.
+2. Формат логов: `request_id=%(request_id)s` (Filter в `logging.py`).
+3. Publisher кладёт в RabbitMQ: `{"document_id": "...", "request_id": "..."}`.
+4. Worker читает `request_id` из сообщения и ставит в ContextVar на время обработки.
+
+Поиск в Grafana (Loki):
+
+```logql
+{compose_service=~"api|worker"} |= "request_id=<uuid>"
+```
+
+### Очередь и Dead Letter Queue (DLQ)
+
+Очереди объявляет `app/queue/setup.py` (и publisher, и worker):
+
+| Очередь | Назначение |
+|---------|------------|
+| `documents.process` | основная; DLX → default exchange, routing key = DLQ |
+| `documents.process.dlq` | «ядовитые» сообщения после ошибки обработки |
+
+При ошибке worker делает `basic_nack(..., requeue=False)` — сообщение уходит в DLQ, а не теряется и не зацикливается.
+
+Переменные: `RABBITMQ_QUEUE`, `RABBITMQ_DLQ` (см. `.env.example` и `docker-compose.yml`).
+
+Смотреть DLQ: http://localhost:15672 → Queues → `documents.process.dlq` → Get messages.
+
+**Важно:** RabbitMQ не меняет arguments у уже созданной очереди. Если меняли DLX-настройки и ловите `PRECONDITION_FAILED`:
+
+```powershell
+docker compose exec rabbitmq rabbitmqctl delete_queue documents.process
+docker compose exec rabbitmq rabbitmqctl delete_queue documents.process.dlq
+docker compose up -d --force-recreate api worker
+```
 
 Уровень задаётся переменной `LOG_LEVEL` (по умолчанию `INFO`).
 
@@ -365,15 +393,18 @@ rate(docmind_process_duration_seconds_sum[5m]) / rate(docmind_process_duration_s
 ### Логи: Loki + Promtail
 
 - Loki: `monitoring/loki-config.yml`, UI health `http://127.0.0.1:3100/ready`
-- Promtail читает Docker container logs и пушит в Loki (`monitoring/promtail-config.yml`)
+- Promtail: Docker service discovery через `/var/run/docker.sock` (`monitoring/promtail-config.yml`)
+- Лейблы: `container`, `compose_service`, `compose_project` (удобные фильтры в Grafana)
 - В Grafana datasource Loki: `http://loki:3100` (внутри Docker-сети)
 
 Полезные LogQL-запросы (в Explore выбирайте datasource **Loki**, не Prometheus):
 
 ```logql
-{job="docker"} |= "upload accepted"
-{job="docker"} |= "Processing document"
-{job="docker"} |= "docmind."
+{compose_service="api"}
+{compose_service="worker"}
+{compose_service="api"} |= "upload accepted"
+{compose_service="worker"} |= "Processing document"
+{compose_service=~"api|worker"} |= "request_id="
 ```
 
 Важно: LogQL (`|=`) нельзя выполнять в Prometheus — будет ошибка `unexpected character: '|'`.
@@ -632,11 +663,14 @@ alembic downgrade -1
 | `Connection refused` :5432 / :5672 | `docker compose up -d`, `docker compose ps` |
 | Worker не обрабатывает | Запущен ли worker (Compose или `python -m app.worker`), очередь в UI RabbitMQ |
 | Worker падает при старте Compose | Смотрите retry в логах; RabbitMQ должен стать healthy |
+| `PRECONDITION_FAILED` / inequivalent arg DLX | Удалите очереди и пересоздайте api/worker (см. раздел DLQ выше) |
+| Сообщение не в DLQ после ошибки | У `documents.process` должны быть DLX arguments; `nack(requeue=False)` |
 | LLM `signal: killed` | OOM — используйте `llama3.2:1b`, уменьшите число моделей в Ollama |
 | Битый JSON от LLM | Включён json mode / парсер в `llm.py`; для демо — `EXTRACTOR_PROVIDER=mock` |
 | `ModuleNotFoundError: app` | Запуск из корня проекта; есть `pytest.ini` |
 | Сборка Docker тянет `venv` / огромный context | Проверьте `.dockerignore` |
 | В контейнере нет `.env` | Нормально: переменные задаются в `docker-compose.yml` |
+| Панель логов пустая после правки JSON | `POST /api/admin/provisioning/dashboards/reload` (admin:admin) или `docker compose restart grafana` |
 | Grafana Logs: `unexpected character: '\|'` | LogQL отправлен в Prometheus — выберите datasource Loki |
 | Панель логов пустая, Explore Loki ок | Проверьте datasource панели = Loki и время Last 1h/6h |
 | Loki `/ready` не ready | Подождите 15–30с после старта или смотрите `docker logs docmind-loki` |
@@ -646,11 +680,8 @@ alembic downgrade -1
 
 ## Что можно добавить дальше
 
-- Labels в Promtail (`container` / `compose_service`) для удобных LogQL-фильтров
-- `request_id` / корреляция HTTP ↔ worker по `document_id`
 - Eval-набор и честные метрики качества классификации / сущностей
 - Auth для админки
-- Dead-letter queue для «ядовитых» сообщений
 - Object storage (S3/MinIO) вместо локального `uploads/`
 
 ---
