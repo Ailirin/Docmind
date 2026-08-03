@@ -26,14 +26,16 @@ def publish_document_process(document_id: UUID, request_id: str | None = None) -
     declare_process_queues(channel)
 
     rid = request_id or get_request_id()
-    body = json.dumps({
-        "document_id": str(document_id),
-        "request_id": rid,
-    })
+    body = json.dumps(
+        {
+            "document_id": str(document_id),
+            "request_id": rid,
+        }
+    )
     logger.info(
-        "publishing to rabbit doc_id=%s request_id=%s queue=%s", 
+        "publishing to rabbit doc_id=%s request_id=%s queue=%s",
         document_id,
-        rid, 
+        rid,
         settings.rabbitmq_queue,
     )
     channel.basic_publish(

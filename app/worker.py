@@ -9,10 +9,10 @@ import pika
 from prometheus_client import start_http_server
 
 from app.core.config import settings
-from app.core.logging import configure_logging, set_request_id, clear_request_id
+from app.core.logging import clear_request_id, configure_logging, set_request_id
 from app.db.session import SessionLocal
-from app.services.processor import process_document
 from app.queue.setup import declare_process_queues
+from app.services.processor import process_document
 
 configure_logging()
 

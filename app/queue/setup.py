@@ -4,6 +4,7 @@ import pika
 
 from app.core.config import settings
 
+
 def declare_process_queues(channel: pika.channel.Channel) -> None:
     # 1) очередь для "ядовитых" сообщений
     channel.queue_declare(queue=settings.rabbitmq_dlq, durable=True)
@@ -15,5 +16,5 @@ def declare_process_queues(channel: pika.channel.Channel) -> None:
         arguments={
             "x-dead-letter-exchange": "",
             "x-dead-letter-routing-key": settings.rabbitmq_dlq,
-        }
+        },
     )

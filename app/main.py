@@ -1,4 +1,5 @@
 """Точка входа FastAPI: логирование, монтирование API v1 и HTML-админки."""
+
 from uuid import uuid4
 
 from fastapi import FastAPI, Request, Response
@@ -19,6 +20,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         # 1) взять из зоголовка или сгенерировать новый
@@ -27,7 +29,7 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
 
         # 2) положить в ContextVar (логи подхватят)
         token = set_request_id(request_id)
-        try: 
+        try:
             response: Response = await call_next(request)
             # 3) отдать клиенту тот же id
             response.headers["X-Request-ID"] = request_id
@@ -35,6 +37,7 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         finally:
             # 4) обязательно сбросить, иначе id "прилипнет" к следующему запросу
             clear_request_id(token)
+
 
 app.add_middleware(RequestIdMiddleware)
 
