@@ -5,7 +5,7 @@ from app.models.document import DocumentType
 RULES: list[tuple[DocumentType, tuple[str, ...]]] = [
     (
         DocumentType.PRESCRIPTION,
-        ("рецепт", "prescription", "rp:", "dosage", "дозировка", "mg", "таблет"),
+        ("рецепт", "prescription", "rp:", "dosage", "дозировка", "таблет"),
     ),
     (
         DocumentType.DIAGNOSIS,

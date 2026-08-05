@@ -1,0 +1,189 @@
+[
+    {
+        "id": "rx_001",
+        "text": "Patient: Ivan Petrov\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-01-15\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {"full_name": "Ivan Petrov"},
+            "diagnosis": {"code": "J06.9", "name": "Acute URI"},
+            "treatment": {"medication": "Paracetamol", "dosage": "500 mg"},
+            "document_date": "2024-01-15"
+        }
+    },
+    {
+        "id": "rx_002",
+        "text": "Patient: Maria Sokolova\nDiagnosis: E11.9 Type 2 Diabetes\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-02-03\nRp: Metformin 850mg BID",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {"full_name": "Maria Sokolova"},
+            "diagnosis": {"code": "E11.9", "name": "Type 2 Diabetes"},
+            "treatment": {"medication": "Metformin", "dosage": "850 mg twice daily"},
+            "document_date": "2024-02-03"
+        }
+    },
+    {
+        "id": "rx_003",
+        "text": "Patient: Alexey Volkov\nDiagnosis: I10 Essential Hypertension\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-03-21\nRp: Amlodipine 5mg OD",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {"full_name": "Alexey Volkov"},
+            "diagnosis": {"code": "I10", "name": "Essential Hypertension"},
+            "treatment": {"medication": "Amlodipine", "dosage": "5 mg once daily"},
+            "document_date": "2024-03-21"
+        }
+    },
+    {
+        "id": "rx_004",
+        "text": "Patient: Olga Morozova\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-04-10\nRp: Ciprofloxacin 500mg BID x7d",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {"full_name": "Olga Morozova"},
+            "diagnosis": {"code": "N39.0", "name": "Urinary tract infection"},
+            "treatment": {"medication": "Ciprofloxacin", "dosage": "500 mg twice daily for 7 days"},
+            "document_date": "2024-04-10"
+        }
+    },
+    {
+        "id": "rx_005",
+        "text": "Patient: Dmitry Ivanov\nDiagnosis: R51 Headache NOS\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-05-18\nRp: Ibuprofen 400mg PRN",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {"full_name": "Dmitry Ivanov"},
+            "diagnosis": {"code": "R51", "name": "Headache NOS"},
+            "treatment": {"medication": "Ibuprofen", "dosage": "400 mg every 6 hours as needed"},
+            "document_date": "2024-05-18"
+        }
+    },
+    {
+        "id": "dc_001",
+        "text": "Discharge Summary\nPatient: Elena Pavlova\nDiagnosis: K35 Acute appendicitis\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-06-05",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {"full_name": "Elena Pavlova"},
+            "diagnosis": {"code": "K35", "name": "Acute appendicitis"},
+            "treatment": {"medication": "Amoxicillin-clavulanate", "dosage": "875 mg BID for 5 days"},
+            "document_date": "2024-06-05"
+        }
+    },
+    {
+        "id": "dc_002",
+        "text": "Discharge Summary\nPatient: Nikolai Semenov\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Aspirin, Atorvastatin, Bisoprolol\nDosage: 100mg OD, 40mg at night, 2.5mg OD\nDate: 2024-06-17",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {"full_name": "Nikolai Semenov"},
+            "diagnosis": {"code": "I21.0", "name": "Acute myocardial infarction"},
+            "treatment": {"medication": "Aspirin, Atorvastatin, Bisoprolol", "dosage": "100mg OD, 40mg at night, 2.5mg OD"},
+            "document_date": "2024-06-17"
+        }
+    },
+    {
+        "id": "dc_003",
+        "text": "Discharge Summary\nPatient: Анна Крылова\nDiagnosis: J18.9 Пневмония\nMedication: Азитромицин\nDosage: 500 mg 1 раз в день, 3 дня\nDate: 2024-07-06",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {"full_name": "Анна Крылова"},
+            "diagnosis": {"code": "J18.9", "name": "Пневмония"},
+            "treatment": {"medication": "Азитромицин", "dosage": "500 мг 1 раз в день, 3 дня"},
+            "document_date": "2024-07-06"
+        }
+    },
+    {
+        "id": "dc_004",
+        "text": "Discharge Summary\nPatient: Sergei Orlov\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Omeprazole, Sucralfate\nDosage: 20mg OD, 1g QID\nDate: 2024-07-18",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {"full_name": "Sergei Orlov"},
+            "diagnosis": {"code": "K29.7", "name": "Gastritis, unspecified"},
+            "treatment": {"medication": "Omeprazole, Sucralfate", "dosage": "20mg OD, 1g QID"},
+            "document_date": "2024-07-18"
+        }
+    },
+    {
+        "id": "dc_005",
+        "text": "Discharge Summary\nPatient: Irina Fomina\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-08-08",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {"full_name": "Irina Fomina"},
+            "diagnosis": {"code": "G40.9", "name": "Epilepsy, unspecified"},
+            "treatment": {"medication": "Levetiracetam", "dosage": "1000 mg BID"},
+            "document_date": "2024-08-08"
+        }
+    },
+    {
+        "id": "dx_001",
+        "text": "Referral / Direction\nPatient: Pavel Nikitin\nDiagnosis: J45.9 Asthma, unspecified\nDate: 2024-08-12",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {"full_name": "Pavel Nikitin"},
+            "diagnosis": {"code": "J45.9", "name": "Asthma, unspecified"},
+            "treatment": null,
+            "document_date": "2024-08-12"
+        }
+    },
+    {
+        "id": "dx_002",
+        "text": "Diagnosis Report\nPatient: Светлана Гусева\nDiagnosis: M54.5 Боль в пояснице\nDate: 2024-08-15",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {"full_name": "Светлана Гусева"},
+            "diagnosis": {"code": "M54.5", "name": "Боль в пояснице"},
+            "treatment": null,
+            "document_date": "2024-08-15"
+        }
+    },
+    {
+        "id": "dx_003",
+        "text": "Patient: Andrey Kuznetsov\nDiagnosis: E03.9 Hypothyroidism, unspecified\nDate: 2024-08-20",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {"full_name": "Andrey Kuznetsov"},
+            "diagnosis": {"code": "E03.9", "name": "Hypothyroidism, unspecified"},
+            "treatment": null,
+            "document_date": "2024-08-20"
+        }
+    },
+    {
+        "id": "dx_004",
+        "text": "Diagnosis Report\nPatient: Vera Titova\nDiagnosis: H81.1 Benign paroxysmal vertigo\nDate: 2024-08-25",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {"full_name": "Vera Titova"},
+            "diagnosis": {"code": "H81.1", "name": "Benign paroxysmal vertigo"},
+            "treatment": null,
+            "document_date": "2024-08-25"
+        }
+    },
+    {
+        "id": "unk_001",
+        "text": "Meeting notes for the cardiology department\nWeekly case review agenda: 9:00 AM, Conference Room B.\nCoffee and cookies will be provided.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_002",
+        "text": "The weather is nice today. Please remember to renew the office supplies order by Friday. Regards, Administration.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_003",
+        "text": "Протокол собрания отдела продаж.\nОбсудили план на квартал, бюджет и премии сотрудников.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    }
+]

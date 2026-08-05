@@ -17,6 +17,9 @@
 | `docker-compose.yml` | App + Prometheus, Grafana, Loki, Promtail |
 | `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
 | `scripts/load_upload.ps1` | Нагрузка: повторный `POST /documents` через curl.exe |
+| `scripts/run_eval.py` | Eval: classification + field accuracy на `eval/gold/cases.jsonl` |
+| `eval/README.md` | Описание eval-набора и последних метрик |
+| `eval/gold/cases.jsonl` | Gold-кейсы (JSON-массив: text, expected_type, expected fields) |
 | `pytest.ini` | Настройки pytest (`pythonpath`, `testpaths`) |
 | `alembic.ini` | Конфиг Alembic (миграции) |
 | `.env.example` | Шаблон переменных окружения (в git); копировать в `.env` |
@@ -146,7 +149,7 @@ LogQL только в datasource Loki. Примеры: `{compose_service="api"}`
 |------|--------|
 | `file_storage.py` | Сохранение PDF на диск как `{uuid}.pdf` |
 | `pdf_extractor.py` | Достаёт текст из PDF (PyMuPDF) |
-| `classifier.py` | Rule-based классификация типа документа |
+| `classifier.py` | Rule-based классификация типа документа (без слишком общих токенов вроде `mg`) |
 | `processor.py` | Пайплайн: текст → тип → сущности → запись в БД; логи, счётчики done/failed и latency |
 | `extractors/base.py` | Абстрактный интерфейс экстрактора сущностей |
 | `extractors/mock.py` | Regex/эвристики без LLM (стабильно для тестов) |
@@ -225,3 +228,4 @@ LogQL только в datasource Loki. Примеры: `{compose_service="api"}`
 8. **Логи в Grafana** → Promtail + Loki + `monitoring/grafana/`  
 9. **Docker** → `Dockerfile` + `docker-compose.yml` + `.dockerignore`  
 10. **Нагрузка** → `scripts/load_upload.ps1`  
+11. **Eval** → `scripts/run_eval.py` + `eval/gold/cases.jsonl`  

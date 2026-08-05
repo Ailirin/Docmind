@@ -26,6 +26,7 @@ DocMind принимает выписки, рецепты и диагнозы, �
 - Метрики Prometheus + Grafana dashboard для API и worker
 - Централизованные логи: Promtail → Loki → Grafana
 - Load-скрипт для демо метрик/логов под нагрузкой
+- Eval-набор: classification + field accuracy (mock) на gold-кейсах
 - Unit- и API-тесты (pytest), lint (Ruff) и CI на GitHub Actions
 
 ---
@@ -118,7 +119,11 @@ DocMind/
 │       ├── dashboards/         # DocMind Overview JSON
 │       └── provisioning/       # datasources + dashboard provider
 ├── scripts/
-│   └── load_upload.ps1         # нагрузка: повторный upload PDF
+│   ├── load_upload.ps1         # нагрузка: повторный upload PDF
+│   └── run_eval.py             # eval: classification + fields (mock)
+├── eval/
+│   ├── README.md               # как запускать eval и метрики
+│   └── gold/cases.jsonl        # gold-кейсы (JSON-массив)
 ├── samples/                    # тестовые PDF
 ├── tests/                      # pytest
 ├── .github/workflows/ci.yml    # CI: Ruff + pytest
@@ -534,6 +539,32 @@ docker compose logs -f api worker
 
 ---
 
+## Eval (качество)
+
+Разметка и прогон без PDF — на текстах + mock-экстрактор:
+
+| Путь | Назначение |
+|------|------------|
+| `eval/gold/cases.jsonl` | 17 gold-кейсов (JSON-массив) |
+| `scripts/run_eval.py` | classification accuracy + field accuracy |
+| `eval/README.md` | детали формата и метрик |
+
+```powershell
+python scripts/run_eval.py
+```
+
+Последний прогон (mock):
+
+- Classification accuracy: **17/17 = 1.000**
+- Field accuracy (micro): **38/38 = 1.000**
+  - `patient.full_name`: 14/14
+  - `diagnosis.code`: 14/14
+  - `treatment.medication`: 10/10
+
+Это метрики на контролируемом gold-наборе для текущего rule-based классификатора и mock-экстрактора, не «accuracy в проде на любых PDF».
+
+---
+
 ## Админка
 
 - Список: `/admin/documents`  
@@ -680,7 +711,6 @@ alembic downgrade -1
 
 ## Что можно добавить дальше
 
-- Eval-набор и честные метрики качества классификации / сущностей
 - Auth для админки
 - Object storage (S3/MinIO) вместо локального `uploads/`
 
