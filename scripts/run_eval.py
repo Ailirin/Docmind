@@ -10,9 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.models.document import DocumentType
-from app.services.classifier import classify_document
-from app.services.extractors.mock import MockEntityExtractor
+from app.models.document import DocumentType  # noqa: E402
+from app.services.classifier import classify_document  # noqa: E402
+from app.services.extractors.mock import MockEntityExtractor  # noqa: E402
 
 CASES_PATH = ROOT / "eval" / "gold" / "cases.jsonl"
 
@@ -122,9 +122,7 @@ def main() -> None:
         print(f"Field accuracy (micro): {field_ok}/{field_total} = {field_ok / field_total:.3f}")
         for name, st in field_stats.items():
             if st["total"]:
-                print(
-                    f"  - {name}: {st['ok']}/{st['total']} = {st['ok'] / st['total']:.3f}"
-                )
+                print(f"  - {name}: {st['ok']}/{st['total']} = {st['ok'] / st['total']:.3f}")
     else:
         print("Field accuracy: n/a (no expected fields)")
 
