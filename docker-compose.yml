@@ -53,6 +53,7 @@ services:
       APP_NAME: DocMind
       APP_VERSION: 0.1.0
       API_V1_PREFIX: /api/v1
+      API_KEY: change-me
       UPLOAD_DIR: /app/uploads
       MAX_UPLOAD_BYTES: "20971520"
       DATABASE_URL: postgresql+psycopg2://docmind:docmind@db:5432/docmind
