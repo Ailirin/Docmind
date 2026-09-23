@@ -9,6 +9,7 @@ from app.core.config import settings
 
 security = HTTPBasic()
 
+
 def require_admin(
     credentials: HTTPBasicCredentials = Depends(security),
 ) -> str:

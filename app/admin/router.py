@@ -9,9 +9,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.admin.auth import require_admin
 from app.db.session import get_db
 from app.storage import documents as documents_storage
-from app.admin.auth import require_admin
 
 router = APIRouter()
 
@@ -23,7 +23,7 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 @router.get("/", response_class=HTMLResponse)
 @router.get("/documents", response_class=HTMLResponse)
 def documents_list(
-    request: Request, 
+    request: Request,
     db: Session = Depends(get_db),
     _: str = Depends(require_admin),
 ):
