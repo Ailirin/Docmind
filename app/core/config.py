@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     api_v1_prefix: str = "/api/v1"
     upload_dir: str = "uploads"
+    max_upload_bytes: int = 20 * 1024 * 1024  # 20 МБ
     database_url: str = "postgresql+psycopg2://docmind:docmind@localhost:5432/docmind"
     extractor_provider: str = "mock"
     llm_api_key: str | None = None
@@ -18,6 +19,8 @@ class Settings(BaseSettings):
     rabbitmq_url: str = "amqp://docmind:docmind@localhost:5672/"
     rabbitmq_queue: str = "documents.process"
     rabbitmq_dlq: str = "documents.process.dlq"
+    admin_username: str = "admin"
+    admin_password: str = "admin"
 
 
 settings = Settings()
