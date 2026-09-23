@@ -89,6 +89,29 @@ def test_upload_rejects_empty_pdf(client):
     assert response.status_code == 400
     assert response.json()["detail"] == "Empty file"
 
+def test_upload_rejects_non_pdf_content(client):
+    test_client, _ = client
+    files = {"file": ("fake.pdf", b"not-a-pdf-content", "application/pdf")}
+
+    response = test_client.post("/api/v1/documents", files=files)
+    
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Invalid PDF file"
+
+
+def test_upload_rejects_too_large_file(client, monkeypatch):
+    test_client, _ = client
+     # для теста ставим маленький лимит, чтобы не слать 20 МБ
+    monkeypatch.setattr(
+        "app.api.v1.router.settings.max_upload_bytes",
+        10, 
+    )
+    files = {"file": ("big.pdf", b"%PDF-1134567890", "application/pdf")} 
+
+    response = test_client.post("/api/v1/documents", files=files)
+
+    assert response.status_code == 400
+    assert "too large" in response.json()["detail"].lower()
 
 def test_get_document_not_found(client):
     test_client, _ = client

@@ -54,6 +54,7 @@ services:
       APP_VERSION: 0.1.0
       API_V1_PREFIX: /api/v1
       UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_BYTES: "20971520"
       DATABASE_URL: postgresql+psycopg2://docmind:docmind@db:5432/docmind
       RABBITMQ_URL: amqp://docmind:docmind@rabbitmq:5672/
       RABBITMQ_QUEUE: documents.process
@@ -62,6 +63,8 @@ services:
       LLM_BASE_URL: http://ollama:11434/v1
       LLM_MODEL: llama3.2:1b
       LLM_API_KEY: ollama
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: change-me
     volumes:
       - docmind_uploads:/app/uploads
     depends_on:

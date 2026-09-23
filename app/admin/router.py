@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.db.session import get_db
 from app.storage import documents as documents_storage
+from app.admin.auth import require_admin
 
 router = APIRouter()
 
@@ -21,7 +22,11 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 @router.get("/", response_class=HTMLResponse)
 @router.get("/documents", response_class=HTMLResponse)
-def documents_list(request: Request, db: Session = Depends(get_db)):
+def documents_list(
+    request: Request, 
+    db: Session = Depends(get_db),
+    _: str = Depends(require_admin),
+):
     docs = documents_storage.list_documents(db)
     return templates.TemplateResponse(
         request=request,
@@ -35,6 +40,7 @@ def document_detail(
     document_id: UUID,
     request: Request,
     db: Session = Depends(get_db),
+    _: str = Depends(require_admin),
 ):
     document = documents_storage.get_document(db, document_id)
     if document is None:

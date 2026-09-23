@@ -47,6 +47,13 @@ async def upload_document(
     data = await file.read()
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > settings.max_upload_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large. Max size is {settings.max_upload_bytes} bytes",
+        )
+    if not data.startswith(b"%PDF"):
+        raise HTTPException(status_code=400, detail="Invalid PDF file")
 
     # 1) сначала диск
     storage_path = await save_upload(doc_id, data)
