@@ -6,6 +6,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
+from app.api.deps import require_api_key
 from app.core.config import settings
 from app.core.metrics import DOCUMENTS_UPLOADED
 from app.db.session import get_db
@@ -36,6 +37,7 @@ def health() -> HealthResponse:
 async def upload_document(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
+    _: None = Depends(require_api_key),
 ) -> DocumentCreateResponse:
     if not file.filename or not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
@@ -89,6 +91,7 @@ async def upload_document(
 def get_document(
     document_id: UUID,
     db: Session = Depends(get_db),
+    _: None = Depends(require_api_key),
 ) -> DocumentResponse:
     document = documents_storage.get_document(db, document_id)
     if document is None:
@@ -100,6 +103,7 @@ def get_document(
 def process_document_endpoint(
     document_id: UUID,
     db: Session = Depends(get_db),
+    _: None = Depends(require_api_key),
 ) -> DocumentResponse:
     document = documents_storage.get_document(db, document_id)
     if document is None:

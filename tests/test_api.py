@@ -40,8 +40,10 @@ def client(monkeypatch, tmp_path):
     monkeypatch.setattr("app.api.v1.router.documents_storage.add_document", fake_add_document)
     monkeypatch.setattr("app.api.v1.router.documents_storage.get_document", fake_get_document)
     monkeypatch.setattr("app.api.v1.router.publish_document_process", fake_publish)
+    monkeypatch.setattr("app.api.deps.settings.api_key", "test-key")
 
     with TestClient(app) as test_client:
+        test_client.headers.update({"X-API-Key": "test-key"})
         yield test_client, store
 
 
@@ -113,6 +115,38 @@ def test_upload_rejects_too_large_file(client, monkeypatch):
 
     assert response.status_code == 400
     assert "too large" in response.json()["detail"].lower()
+
+
+def test_upload_rejects_missing_api_key(client):
+    test_client, _ = client
+    # убираем ключ, который фикстура поставила по умолчанию
+    test_client.headers.pop("X-API-Key", None)
+    files = {"file": ("test.pdf", b"%PDF-1.4 fake", "application/pdf")}
+
+    response = test_client.post("/api/v1/documents", files=files)
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Missing API key"
+
+
+def test_upload_rejects_invalid_api_key(client):
+    test_client, _ = client
+    test_client.headers.update({"X-API-Key": "wrong-key"})
+    files = {"file": ("test.pdf", b"%PDF-1.4 fake", "application/pdf")}
+
+    response = test_client.post("/api/v1/documents", files=files)
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid API key"
+
+
+def test_health_without_api_key(client):
+    test_client, _ = client
+    test_client.headers.pop("X-API-Key", None)
+
+    response = test_client.get("/api/v1/health")
+
+    assert response.status_code == 200
 
 
 def test_get_document_not_found(client):
