@@ -1,8 +1,11 @@
 """Точка входа FastAPI: логирование, монтирование API v1 и HTML-админки."""
 
+import base64
+import secrets
 from uuid import uuid4
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, status
+from fastapi.responses import PlainTextResponse
 from prometheus_client import make_asgi_app
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -39,6 +42,45 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
             clear_request_id(token)
 
 
+class MetricsAuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.url.path.startswith("/metrics"):
+            auth = request.headers.get("Authorization")
+            if not auth or not auth.startswith("Basic "):
+                return PlainTextResponse(
+                    "Unauthorized",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    headers={"WWW-Authenticate": "Basic"},
+                )
+
+            try:
+                raw = base64.b64decode(auth.removeprefix("Basic ")).decode("utf-8")
+                username, _, password = raw.partition(":")
+            except Exception:
+                return PlainTextResponse(
+                    "Unauthorized",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    headers={"WWW-Authenticate": "Basic"},
+                )
+
+            user_ok = secrets.compare_digest(
+                username.encode("utf-8"),
+                settings.metrics_username.encode("utf-8"),
+            )
+            pass_ok = secrets.compare_digest(
+                password.encode("utf-8"),
+                settings.metrics_password.encode("utf-8"),
+            )
+            if not (user_ok and pass_ok):
+                return PlainTextResponse(
+                    "Unauthorized",
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    headers={"WWW-Authenticate": "Basic"},
+                )
+        return await call_next(request)
+
+
+app.add_middleware(MetricsAuthMiddleware)
 app.add_middleware(RequestIdMiddleware)
 
 app.include_router(v1_router, prefix=settings.api_v1_prefix)

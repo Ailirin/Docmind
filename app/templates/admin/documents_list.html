@@ -4,7 +4,11 @@
 
 {% block content %}
   <h1>Документы</h1>
-  <p class="muted">Всего: {{ documents|length }}</p>
+  <p class="muted">
+    Всего: {{ total }}.
+    Показано: {{ offset + 1 }}-{{ offset + documents|length }}
+    (limit={{ limit }})
+  </p>
 
   {% if documents %}
   <table>
@@ -41,6 +45,15 @@
       {% endfor %}
     </tbody>
   </table>
+  <p>
+    {% if offset > 0 %}
+      <a href="/admin/documents?limit={{ limit }}&offset={{ prev_offset }}"><- Назад</a>
+    {% endif %}
+
+    {% if offset + documents|length < total %}
+     <a href="/admin/documents?limit={{ limit }}&offset={{ next_offset }}">Вперед -></a>
+    {% endif %} 
+  </p>
   {% else %}
   <p class="muted">Пока нет документов. Загрузите PDF через <code>/docs</code>.</p>
   {% endif %}

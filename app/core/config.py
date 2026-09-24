@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     rabbitmq_dlq: str = "documents.process.dlq"
     admin_username: str = "admin"
     admin_password: str = "admin"
+    metrics_username: str = "metrics"
+    metrics_password: str = "change-me"
 
 
 settings = Settings()

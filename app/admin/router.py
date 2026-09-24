@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -26,12 +26,30 @@ def documents_list(
     request: Request,
     db: Session = Depends(get_db),
     _: str = Depends(require_admin),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
 ):
-    docs = documents_storage.list_documents(db)
+    docs = documents_storage.list_documents(db, limit=limit, offset=offset)
+    total = documents_storage.count_documents(db)
+
+    prev_offset = max(offset - limit, 0)
+    next_offset = offset + limit
+    has_prev = offset > 0
+    has_next = next_offset < total
+
     return templates.TemplateResponse(
         request=request,
         name="admin/documents_list.html",
-        context={"documents": docs},
+        context={
+            "documents": docs,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "prev_offset": prev_offset,
+            "next_offset": next_offset,
+            "has_prev": has_prev,
+            "has_next": has_next,
+        },
     )
 
 

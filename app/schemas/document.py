@@ -33,7 +33,6 @@ class DocumentResponse(BaseModel):
 
     id: UUID
     filename: str
-    storage_path: str | None = None
     status: DocumentStatus
     document_type: DocumentType | None = None
     created_at: datetime

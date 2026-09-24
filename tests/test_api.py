@@ -168,6 +168,7 @@ def test_get_document_after_upload(client):
 
     assert response.status_code == 200
     body = response.json()
+    assert "storage_path" not in body
     assert body["id"] == doc_id
     assert body["filename"] == "test.pdf"
     assert body["status"] == "queued"
@@ -214,6 +215,7 @@ def test_process_document_endpoint_success(client, monkeypatch):
 
     assert response.status_code == 200
     body = response.json()
+    assert "storage_path" not in body
     assert body["id"] == str(doc_id)
     assert body["status"] == "done"
     assert body["extracted_text"] == "extracted"
