@@ -3,10 +3,11 @@
 import logging
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_api_key
+from app.api.health_checks import check_database, check_rabbitmq
 from app.core.config import settings
 from app.core.metrics import DOCUMENTS_UPLOADED
 from app.db.session import get_db
@@ -18,8 +19,9 @@ from app.schemas.document import (
     DocumentResponse,
     DocumentStatus,
     HealthResponse,
+    ReadyResponse,
 )
-from app.services.file_storage import save_upload
+from app.services.file_storage import delete_upload, save_upload
 from app.services.processor import process_document
 from app.storage import documents as documents_storage
 
@@ -31,6 +33,30 @@ router = APIRouter()
 @router.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
     return HealthResponse(app=settings.app_name, version=settings.app_version)
+
+
+@router.get("/health/ready", response_model=ReadyResponse)
+def health_ready(response: Response) -> ReadyResponse:
+    db_ok = check_database()
+    mq_ok = check_rabbitmq()
+
+    if db_ok and mq_ok:
+        return ReadyResponse(
+            status="ok",
+            app=settings.app_name,
+            version=settings.app_version,
+            database="ok",
+            rabbitmq="ok",
+        )
+
+    response.status_code = 503
+    return ReadyResponse(
+        status="unavailable",
+        app=settings.app_name,
+        version=settings.app_version,
+        database="ok" if db_ok else "error",
+        rabbitmq="ok" if mq_ok else "error",
+    )
 
 
 @router.post("/documents", response_model=DocumentCreateResponse, status_code=202)
@@ -80,6 +106,7 @@ async def upload_document(
         document.status = ModelDocumentStatus.FAILED
         document.error_message = f"Failed to enqueue: {exc}"[:1000]
         db.commit()
+        delete_upload(storage_path)
         logger.exception("failed to enqueue doc_id=%s error=%s", doc_id, exc)
         raise HTTPException(status_code=503, detail="Queue unavailable") from exc
 

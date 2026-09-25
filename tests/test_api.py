@@ -1,60 +1,11 @@
 """API-тесты: TestClient + моки диска/БД/очереди."""
 
 from datetime import UTC, datetime
+from pathlib import Path
 from uuid import UUID, uuid4
 
-import pytest
-from fastapi.testclient import TestClient
-
-from app.main import app
 from app.models.document import Document
 from app.models.document import DocumentStatus as ModelDocumentStatus
-
-
-@pytest.fixture
-def client(monkeypatch, tmp_path):
-    """
-    Подменяем диск, БД и очередь — тестируем только API.
-    """
-    store: dict[UUID, Document] = {}
-
-    async def fake_save_upload(document_id, data: bytes) -> str:
-        path = tmp_path / f"{document_id}.pdf"
-        path.write_bytes(data)
-        return str(path)
-
-    def fake_add_document(db, document: Document) -> Document:
-        now = datetime.now(UTC)
-        document.created_at = now
-        document.updated_at = now
-        store[document.id] = document
-        return document
-
-    def fake_get_document(db, document_id: UUID) -> Document | None:
-        return store.get(document_id)
-
-    def fake_publish(document_id: UUID, request_id: str | None = None) -> None:
-        return None  # очередь «успешна»
-
-    monkeypatch.setattr("app.api.v1.router.save_upload", fake_save_upload)
-    monkeypatch.setattr("app.api.v1.router.documents_storage.add_document", fake_add_document)
-    monkeypatch.setattr("app.api.v1.router.documents_storage.get_document", fake_get_document)
-    monkeypatch.setattr("app.api.v1.router.publish_document_process", fake_publish)
-    monkeypatch.setattr("app.api.deps.settings.api_key", "test-key")
-
-    with TestClient(app) as test_client:
-        test_client.headers.update({"X-API-Key": "test-key"})
-        yield test_client, store
-
-
-def test_health(client):
-    test_client, _ = client
-    response = test_client.get("/api/v1/health")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["status"] == "ok"
-    assert "app" in body
-    assert "version" in body
 
 
 def test_upload_pdf_returns_202(client):
@@ -174,7 +125,7 @@ def test_get_document_after_upload(client):
     assert body["status"] == "queued"
 
 
-def test_upload_returns_503_when_queue_fails(client, monkeypatch):
+def test_upload_returns_503_when_queue_fails(client, monkeypatch, tmp_path):
     test_client, store = client
 
     def broken_publish(document_id: UUID, request_id: str | None = None) -> None:
@@ -190,6 +141,9 @@ def test_upload_returns_503_when_queue_fails(client, monkeypatch):
     # документ в store уже есть и помечен failed
     doc = next(iter(store.values()))
     assert doc.status == ModelDocumentStatus.FAILED
+
+    # файл с диска убран
+    assert not Path(doc.storage_path).exists()
 
 
 def test_process_document_endpoint_success(client, monkeypatch):

@@ -46,3 +46,11 @@ class HealthResponse(BaseModel):
     status: str = "ok"
     app: str
     version: str
+
+
+class ReadyResponse(BaseModel):
+    status: str
+    app: str
+    version: str
+    database: str
+    rabbitmq: str

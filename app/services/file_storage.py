@@ -27,3 +27,13 @@ async def save_upload(document_id: UUID, data: bytes) -> str:
     path = build_storage_path(document_id)
     path.write_bytes(data)
     return str(path)
+
+
+def delete_upload(storage_path: str) -> None:
+    """Удаляет файл с диска. Если файла уже нет — молча выходим."""
+    path = Path(storage_path)
+    try:
+        path.unlink(missing_ok=True)
+    except OSError:
+        # диск/права — не роняем API из‑за cleanup
+        pass
