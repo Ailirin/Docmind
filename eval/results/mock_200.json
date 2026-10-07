@@ -1,0 +1,26 @@
+{
+  "provider": "mock",
+  "cases": 200,
+  "classification_ok": 200,
+  "classification_accuracy": 1.0,
+  "field_ok": 530,
+  "field_total": 530,
+  "field_accuracy_micro": 1.0,
+  "fields": {
+    "patient.full_name": {
+      "ok": 185,
+      "total": 185,
+      "accuracy": 1.0
+    },
+    "diagnosis.code": {
+      "ok": 185,
+      "total": 185,
+      "accuracy": 1.0
+    },
+    "treatment.medication": {
+      "ok": 160,
+      "total": 160,
+      "accuracy": 1.0
+    }
+  }
+}

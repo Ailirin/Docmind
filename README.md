@@ -123,6 +123,45 @@ docker compose up -d --build --force-recreate api
 
 Тестовые PDF лежат в папке `samples/`.
 
+### Как включить модель вместо учебного разбора
+
+По умолчанию — учебный разбор по правилам (`mock`): быстро и без модели.  
+Переключение **без правки** `docker-compose.yml`.
+
+**Вариант A — один раз в `.env`** (Compose подхватит сам):
+
+```env
+EXTRACTOR_PROVIDER=llm
+```
+
+Потом:
+
+```powershell
+docker compose up -d ollama
+docker exec -it docmind-ollama ollama pull llama3.2:1b
+docker compose up -d --force-recreate api worker
+```
+
+Вернуть учебный режим: в `.env` снова `EXTRACTOR_PROVIDER=mock` и та же команда `--force-recreate`.
+
+**Вариант B — только на этот запуск** (PowerShell):
+
+```powershell
+$env:EXTRACTOR_PROVIDER = "llm"
+docker compose up -d --force-recreate api worker
+```
+
+**Без Docker** (локальный Python) — те же строки в `.env`:
+
+```env
+EXTRACTOR_PROVIDER=llm
+LLM_BASE_URL=http://127.0.0.1:11434/v1
+LLM_MODEL=llama3.2:1b
+LLM_API_KEY=ollama
+```
+
+`.env` в git не коммитится — в репозитории остаётся безопасный дефолт `mock`.
+
 ---
 
 ## Что уже заложено «как во взрослом сервисе»

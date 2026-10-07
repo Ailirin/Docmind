@@ -4,8 +4,10 @@ import json
 import re
 
 from openai import OpenAI
+from pydantic import ValidationError
 
 from app.core.config import settings
+from app.core.metrics import LLM_EXTRACTIONS
 from app.models.document import DocumentType
 from app.schemas.extraction import ExtractionResult, MedicalExtraction
 from app.services.extractors.base import EntityExtractor
@@ -24,12 +26,27 @@ SYSTEM_PROMPT = """
 Правила:
 - только двойные кавычки
 - нет trailing comma
-- даты только YYYY-MM-DD или null
-- если поля нет — null
-- name/medication/dosage бери из текста как есть, без перевода
-- code — только код МКБ (например J03.9)
-- medication — название препарата, dosage — дозировка и режим
-- между словами сохраняй пробелы, ничего не додумывай
+- даты только строка YYYY-MM-DD или null (не объект)
+- если поля нет — null (не "" и не [])
+- patient / diagnosis / treatment — объекты или null, не списки и не строки
+- name / medication / dosage бери из текста КАК ЕСТЬ, без перевода
+- торговые названия НЕ заменяй на МНН (Нурофен остаётся Нурофен)
+
+Диагноз — самое важное:
+- строка вида "Diagnosis: J06.9 Acute URI" значит:
+  diagnosis.code = "J06.9"
+  diagnosis.name = "Acute URI"
+- code: ТОЛЬКО код МКБ, шаблон буква + цифры, опционально точка и цифры
+  примеры верно: "J06.9", "I10", "E11.9"
+  примеры НЕВЕРНО: "J06.9 Acute URI", "J06.9 ОРВИ", "Acute URI"
+- name: только текст названия БЕЗ кода
+  верно: "Acute URI" / "Пневмония"
+  неверно: "J06.9 Acute URI"
+- если кода нет в тексте — code = null
+- если названия нет — name = null
+
+medication — название препарата, dosage — дозировка и режим.
+Между словами сохраняй пробелы, ничего не додумывай.
 """.strip()
 
 
@@ -46,6 +63,80 @@ def _extract_json_object(raw: str) -> dict:
         if not match:
             raise
         return json.loads(match.group(0))
+
+
+_ICD_RE = re.compile(r"\b([A-Z]\d{2}(?:\.\d+)?)\b", re.IGNORECASE)
+
+
+def _normalize_diagnosis_fields(parsed: dict) -> dict:
+    """Если code содержит 'J06.9 Acute URI' — разрезать на code/name."""
+    diagnosis = parsed.get("diagnosis")
+    if not isinstance(diagnosis, dict):
+        return parsed
+
+    code = diagnosis.get("code")
+    name = diagnosis.get("name")
+    if not isinstance(code, str):
+        return parsed
+
+    code_stripped = code.strip()
+    match = _ICD_RE.search(code_stripped)
+    if not match:
+        return parsed
+
+    only_code = match.group(1).upper()
+    rest = code_stripped[match.end() :].strip(" :-–—\t")
+    diagnosis["code"] = only_code
+    if (not name) and rest:
+        diagnosis["name"] = rest
+    parsed["diagnosis"] = diagnosis
+    return parsed
+
+
+def _fill_from_text(parsed: dict, text: str) -> dict:
+    """Добиваем поля, которые маленькая модель часто оставляет null."""
+    diagnosis = parsed.get("diagnosis")
+    if not isinstance(diagnosis, dict):
+        diagnosis = {}
+        parsed["diagnosis"] = diagnosis
+
+    code = diagnosis.get("code")
+    if not (isinstance(code, str) and _ICD_RE.search(code)):
+        m = _ICD_RE.search(text)
+        if m:
+            diagnosis["code"] = m.group(1).upper()
+
+    treatment = parsed.get("treatment")
+    if not isinstance(treatment, dict):
+        treatment = {}
+        parsed["treatment"] = treatment
+
+    med = treatment.get("medication")
+    if not isinstance(med, str) or not med.strip():
+        m = re.search(
+            r"Medication:\s*(.+?)(?:\n|Dosage:|Date:|Rp:|$)",
+            text,
+            flags=re.IGNORECASE,
+        )
+        if m:
+            treatment["medication"] = m.group(1).strip()
+
+    if isinstance(treatment.get("medication"), dict):
+        treatment["medication"] = treatment["medication"].get("name") or treatment[
+            "medication"
+        ].get("value")
+    if isinstance(treatment.get("dosage"), dict):
+        treatment["dosage"] = treatment["dosage"].get("value") or treatment["dosage"].get("name")
+
+    patient = parsed.get("patient")
+    if not isinstance(patient, dict):
+        patient = {}
+        parsed["patient"] = patient
+    m = re.search(r"Patient:\s*(.+)", text, flags=re.IGNORECASE)
+    if m:
+        patient["full_name"] = m.group(1).strip()
+
+    return parsed
 
 
 class LlmEntityExtractor(EntityExtractor):
@@ -68,18 +159,28 @@ class LlmEntityExtractor(EntityExtractor):
                 },
             ],
         }
-        # Ollama / совместимые API часто принимают json_object
-        try:
-            response = self.client.chat.completions.create(
-                **kwargs,
-                response_format={"type": "json_object"},
-            )
-        except Exception:
-            response = self.client.chat.completions.create(**kwargs)
 
-        raw = (response.choices[0].message.content or "").strip()
-        parsed = _extract_json_object(raw)
-        payload = MedicalExtraction.model_validate(parsed)
+        try:
+            try:
+                response = self.client.chat.completions.create(
+                    **kwargs,
+                    response_format={"type": "json_object"},
+                )
+            except Exception:
+                response = self.client.chat.completions.create(**kwargs)
+
+            raw = (response.choices[0].message.content or "").strip()
+            parsed = _extract_json_object(raw)
+            parsed = _normalize_diagnosis_fields(parsed)
+            parsed = _fill_from_text(parsed, text)
+            payload = MedicalExtraction.model_validate(parsed)
+            LLM_EXTRACTIONS.labels(result="success").inc()
+        except (ValidationError, json.JSONDecodeError, ValueError, KeyError, TypeError):
+            LLM_EXTRACTIONS.labels(result="validation_error").inc()
+            raise
+        except Exception:
+            LLM_EXTRACTIONS.labels(result="request_error").inc()
+            raise
 
         return ExtractionResult(
             document_type=document_type.value,

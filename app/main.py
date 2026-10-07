@@ -2,6 +2,7 @@
 
 import base64
 import secrets
+from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request, Response, status
@@ -13,20 +14,29 @@ from app.admin.router import router as admin_router
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
 from app.core.logging import clear_request_id, configure_logging, set_request_id
+from app.queue.publisher import close_publisher
 
 configure_logging()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    close_publisher()
+
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 
 class RequestIdMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # 1) взять из зоголовка или сгенерировать новый
+        # 1) взять из заголовка или сгенерировать новый
         incoming = request.headers.get("X-Request-ID")
         request_id = incoming.strip() if incoming and incoming.strip() else str(uuid4())
 

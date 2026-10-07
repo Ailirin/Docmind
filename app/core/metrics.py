@@ -14,6 +14,11 @@ DOCUMENTS_PROCESSED = Counter(
     ["status"],  # done | failed
 )
 
+LLM_EXTRACTIONS = Counter(
+    "docmind_llm_extractions_total",
+    "LLM extraction outcomes",
+    ["result"],
+)
 
 PROCESS_DURATION = Histogram(
     "docmind_process_duration_seconds",
