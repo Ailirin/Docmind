@@ -9,22 +9,81 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "eval" / "gold" / "cases.jsonl"
 
 FIRST = [
-    "Ivan", "Maria", "Alexey", "Olga", "Dmitry", "Elena", "Nikolai", "Anna",
-    "Sergei", "Irina", "Pavel", "Vera", "Andrey", "Svetlana", "Kirill",
-    "Natalia", "Maxim", "Yulia", "Roman", "Tatiana",
+    "Ivan",
+    "Maria",
+    "Alexey",
+    "Olga",
+    "Dmitry",
+    "Elena",
+    "Nikolai",
+    "Anna",
+    "Sergei",
+    "Irina",
+    "Pavel",
+    "Vera",
+    "Andrey",
+    "Svetlana",
+    "Kirill",
+    "Natalia",
+    "Maxim",
+    "Yulia",
+    "Roman",
+    "Tatiana",
 ]
 LAST = [
-    "Petrov", "Sokolova", "Volkov", "Morozova", "Ivanov", "Pavlova", "Semenov",
-    "Krylova", "Orlov", "Fomina", "Nikitin", "Titova", "Kuznetsov", "Guseva",
-    "Smirnov", "Popova", "Vasiliev", "Novikova", "Mikhailov", "Egorova",
+    "Petrov",
+    "Sokolova",
+    "Volkov",
+    "Morozova",
+    "Ivanov",
+    "Pavlova",
+    "Semenov",
+    "Krylova",
+    "Orlov",
+    "Fomina",
+    "Nikitin",
+    "Titova",
+    "Kuznetsov",
+    "Guseva",
+    "Smirnov",
+    "Popova",
+    "Vasiliev",
+    "Novikova",
+    "Mikhailov",
+    "Egorova",
 ]
 FIRST_RU = [
-    "Иван", "Мария", "Алексей", "Ольга", "Дмитрий", "Елена", "Николай", "Анна",
-    "Сергей", "Ирина", "Павел", "Вера", "Андрей", "Светлана", "Кирилл",
+    "Иван",
+    "Мария",
+    "Алексей",
+    "Ольга",
+    "Дмитрий",
+    "Елена",
+    "Николай",
+    "Анна",
+    "Сергей",
+    "Ирина",
+    "Павел",
+    "Вера",
+    "Андрей",
+    "Светлана",
+    "Кирилл",
 ]
 LAST_RU = [
-    "Петров", "Соколова", "Волков", "Морозова", "Иванов", "Павлова", "Семёнов",
-    "Крылова", "Орлов", "Фомина", "Никитин", "Титова", "Кузнецов", "Гусева",
+    "Петров",
+    "Соколова",
+    "Волков",
+    "Морозова",
+    "Иванов",
+    "Павлова",
+    "Семёнов",
+    "Крылова",
+    "Орлов",
+    "Фомина",
+    "Никитин",
+    "Титова",
+    "Кузнецов",
+    "Гусева",
 ]
 
 # (code, name_en, name_ru)
@@ -189,12 +248,7 @@ def case_diagnosis(i: int) -> dict:
     dname = dname_ru if use_ru else dname_en
     d = date_for(i)
     header = "Diagnosis Report" if not use_ru else "Заключение / диагноз"
-    text = (
-        f"{header}\n"
-        f"Patient: {patient}\n"
-        f"Diagnosis: {code} {dname}\n"
-        f"Date: {d}"
-    )
+    text = f"{header}\nPatient: {patient}\nDiagnosis: {code} {dname}\nDate: {d}"
     return {
         "id": f"dx_{i:03d}",
         "text": text,

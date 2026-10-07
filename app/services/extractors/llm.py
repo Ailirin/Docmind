@@ -122,15 +122,11 @@ def _fill_from_text(parsed: dict, text: str) -> dict:
             treatment["medication"] = m.group(1).strip()
 
     if isinstance(treatment.get("medication"), dict):
-        treatment["medication"] = (
-            treatment["medication"].get("name")
-            or treatment["medication"].get("value")
-        )
+        treatment["medication"] = treatment["medication"].get("name") or treatment[
+            "medication"
+        ].get("value")
     if isinstance(treatment.get("dosage"), dict):
-        treatment["dosage"] = (
-            treatment["dosage"].get("value")
-            or treatment["dosage"].get("name")
-        )
+        treatment["dosage"] = treatment["dosage"].get("value") or treatment["dosage"].get("name")
 
     patient = parsed.get("patient")
     if not isinstance(patient, dict):
@@ -191,4 +187,4 @@ class LlmEntityExtractor(EntityExtractor):
             data=payload.model_dump(mode="json"),
             extractor="llm",
             confidence=0.8,
-        )    
+        )
