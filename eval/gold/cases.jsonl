@@ -1,161 +1,3458 @@
 [
     {
-        "id": "rx_001",
-        "text": "Patient: Ivan Petrov\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-01-15\nRp: Paracetamol",
+        "id": "rx_inn_000",
+        "text": "Document type: prescription\nPatient: Ivan Petrov\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-01-01\nRp: Paracetamol",
         "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Ivan Petrov"},
-            "diagnosis": {"code": "J06.9", "name": "Acute URI"},
-            "treatment": {"medication": "Paracetamol", "dosage": "500 mg"},
-            "document_date": "2024-01-15"
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-01-01"
         }
     },
     {
-        "id": "rx_002",
-        "text": "Patient: Maria Sokolova\nDiagnosis: E11.9 Type 2 Diabetes\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-02-03\nRp: Metformin 850mg BID",
+        "id": "rx_inn_001",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-02-02\nRp: Metformin",
         "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Maria Sokolova"},
-            "diagnosis": {"code": "E11.9", "name": "Type 2 Diabetes"},
-            "treatment": {"medication": "Metformin", "dosage": "850 mg twice daily"},
-            "document_date": "2024-02-03"
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-02-02"
         }
     },
     {
-        "id": "rx_003",
-        "text": "Patient: Alexey Volkov\nDiagnosis: I10 Essential Hypertension\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-03-21\nRp: Amlodipine 5mg OD",
+        "id": "rx_inn_002",
+        "text": "Document type: prescription\nPatient: Alexey Volkov\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-03-03\nRp: Amlodipine",
         "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Alexey Volkov"},
-            "diagnosis": {"code": "I10", "name": "Essential Hypertension"},
-            "treatment": {"medication": "Amlodipine", "dosage": "5 mg once daily"},
-            "document_date": "2024-03-21"
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-03-03"
         }
     },
     {
-        "id": "rx_004",
-        "text": "Patient: Olga Morozova\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-04-10\nRp: Ciprofloxacin 500mg BID x7d",
+        "id": "rx_inn_003",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: I10 Essential hypertension\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-04-04\nRp: Ciprofloxacin",
         "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Olga Morozova"},
-            "diagnosis": {"code": "N39.0", "name": "Urinary tract infection"},
-            "treatment": {"medication": "Ciprofloxacin", "dosage": "500 mg twice daily for 7 days"},
-            "document_date": "2024-04-10"
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-04-04"
         }
     },
     {
-        "id": "rx_005",
-        "text": "Patient: Dmitry Ivanov\nDiagnosis: R51 Headache NOS\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-05-18\nRp: Ibuprofen 400mg PRN",
+        "id": "rx_inn_004",
+        "text": "Document type: prescription\nPatient: Dmitry Ivanov\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-05-05\nRp: Ibuprofen",
         "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Dmitry Ivanov"},
-            "diagnosis": {"code": "R51", "name": "Headache NOS"},
-            "treatment": {"medication": "Ibuprofen", "dosage": "400 mg every 6 hours as needed"},
-            "document_date": "2024-05-18"
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-05-05"
         }
     },
     {
-        "id": "dc_001",
-        "text": "Discharge Summary\nPatient: Elena Pavlova\nDiagnosis: K35 Acute appendicitis\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-06-05",
-        "expected_type": "discharge",
+        "id": "rx_inn_005",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: R51 Headache NOS\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-06-06\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Elena Pavlova"},
-            "diagnosis": {"code": "K35", "name": "Acute appendicitis"},
-            "treatment": {"medication": "Amoxicillin-clavulanate", "dosage": "875 mg BID for 5 days"},
-            "document_date": "2024-06-05"
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-06-06"
         }
     },
     {
-        "id": "dc_002",
-        "text": "Discharge Summary\nPatient: Nikolai Semenov\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Aspirin, Atorvastatin, Bisoprolol\nDosage: 100mg OD, 40mg at night, 2.5mg OD\nDate: 2024-06-17",
-        "expected_type": "discharge",
+        "id": "rx_inn_006",
+        "text": "Document type: prescription\nPatient: Nikolai Semenov\nDiagnosis: K35 Acute appendicitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-07-07\nRp: Azithromycin",
+        "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Nikolai Semenov"},
-            "diagnosis": {"code": "I21.0", "name": "Acute myocardial infarction"},
-            "treatment": {"medication": "Aspirin, Atorvastatin, Bisoprolol", "dosage": "100mg OD, 40mg at night, 2.5mg OD"},
-            "document_date": "2024-06-17"
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-07-07"
         }
     },
     {
-        "id": "dc_003",
-        "text": "Discharge Summary\nPatient: Анна Крылова\nDiagnosis: J18.9 Пневмония\nMedication: Азитромицин\nDosage: 500 mg 1 раз в день, 3 дня\nDate: 2024-07-06",
-        "expected_type": "discharge",
+        "id": "rx_inn_007",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-08-08\nRp: Omeprazole",
+        "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Анна Крылова"},
-            "diagnosis": {"code": "J18.9", "name": "Пневмония"},
-            "treatment": {"medication": "Азитромицин", "dosage": "500 мг 1 раз в день, 3 дня"},
-            "document_date": "2024-07-06"
-        }
-    },
-    {
-        "id": "dc_004",
-        "text": "Discharge Summary\nPatient: Sergei Orlov\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Omeprazole, Sucralfate\nDosage: 20mg OD, 1g QID\nDate: 2024-07-18",
-        "expected_type": "discharge",
-        "expected": {
-            "patient": {"full_name": "Sergei Orlov"},
-            "diagnosis": {"code": "K29.7", "name": "Gastritis, unspecified"},
-            "treatment": {"medication": "Omeprazole, Sucralfate", "dosage": "20mg OD, 1g QID"},
-            "document_date": "2024-07-18"
-        }
-    },
-    {
-        "id": "dc_005",
-        "text": "Discharge Summary\nPatient: Irina Fomina\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-08-08",
-        "expected_type": "discharge",
-        "expected": {
-            "patient": {"full_name": "Irina Fomina"},
-            "diagnosis": {"code": "G40.9", "name": "Epilepsy, unspecified"},
-            "treatment": {"medication": "Levetiracetam", "dosage": "1000 mg BID"},
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
             "document_date": "2024-08-08"
         }
     },
     {
-        "id": "dx_001",
-        "text": "Referral / Direction\nPatient: Pavel Nikitin\nDiagnosis: J45.9 Asthma, unspecified\nDate: 2024-08-12",
-        "expected_type": "diagnosis",
+        "id": "rx_inn_008",
+        "text": "Document type: prescription\nPatient: Sergei Orlov\nDiagnosis: J18.9 Pneumonia\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-09-09\nRp: Levetiracetam",
+        "expected_type": "prescription",
         "expected": {
-            "patient": {"full_name": "Pavel Nikitin"},
-            "diagnosis": {"code": "J45.9", "name": "Asthma, unspecified"},
-            "treatment": null,
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-09-09"
+        }
+    },
+    {
+        "id": "rx_inn_009",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-10-10\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-10-10"
+        }
+    },
+    {
+        "id": "rx_inn_010",
+        "text": "Document type: prescription\nPatient: Pavel Nikitin\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-11-11\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-11-11"
+        }
+    },
+    {
+        "id": "rx_inn_011",
+        "text": "Document type: prescription\nPatient: Vera Titova\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-12-12\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-12-12"
+        }
+    },
+    {
+        "id": "rx_inn_012",
+        "text": "Document type: prescription\nPatient: Andrey Kuznetsov\nDiagnosis: M54.5 Low back pain\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-01-13\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Andrey Kuznetsov"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-01-13"
+        }
+    },
+    {
+        "id": "rx_inn_013",
+        "text": "Document type: prescription\nPatient: Svetlana Guseva\nDiagnosis: E03.9 Hypothyroidism\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-02-14\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-02-14"
+        }
+    },
+    {
+        "id": "rx_inn_014",
+        "text": "Document type: prescription\nPatient: Kirill Smirnov\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-03-15\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-03-15"
+        }
+    },
+    {
+        "id": "rx_inn_015",
+        "text": "Document type: prescription\nPatient: Natalia Popova\nDiagnosis: J06.9 Acute URI\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-04-16\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-04-16"
+        }
+    },
+    {
+        "id": "rx_inn_016",
+        "text": "Document type: prescription\nPatient: Maxim Vasiliev\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-05-17\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-05-17"
+        }
+    },
+    {
+        "id": "rx_inn_017",
+        "text": "Document type: prescription\nPatient: Yulia Novikova\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-06-18\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-06-18"
+        }
+    },
+    {
+        "id": "rx_inn_018",
+        "text": "Document type: prescription\nPatient: Roman Mikhailov\nDiagnosis: I10 Essential hypertension\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-07-19\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Roman Mikhailov"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-07-19"
+        }
+    },
+    {
+        "id": "rx_inn_019",
+        "text": "Document type: prescription\nPatient: Tatiana Egorova\nDiagnosis: N39.0 Urinary tract infection\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-08-20\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-08-20"
+        }
+    },
+    {
+        "id": "rx_inn_020",
+        "text": "Document type: prescription\nPatient: Ivan Petrov\nDiagnosis: R51 Headache NOS\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-09-21\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-09-21"
+        }
+    },
+    {
+        "id": "rx_inn_021",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: K35 Acute appendicitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-10-22\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-10-22"
+        }
+    },
+    {
+        "id": "rx_inn_022",
+        "text": "Document type: prescription\nPatient: Alexey Volkov\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-11-23\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-11-23"
+        }
+    },
+    {
+        "id": "rx_inn_023",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: J18.9 Pneumonia\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-12-24\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-12-24"
+        }
+    },
+    {
+        "id": "rx_inn_024",
+        "text": "Document type: prescription\nPatient: Dmitry Ivanov\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-01-25\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-01-25"
+        }
+    },
+    {
+        "id": "rx_inn_025",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-02-26\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-02-26"
+        }
+    },
+    {
+        "id": "rx_inn_026",
+        "text": "Document type: prescription\nPatient: Nikolai Semenov\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-03-27\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-03-27"
+        }
+    },
+    {
+        "id": "rx_inn_027",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: M54.5 Low back pain\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-04-28\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-04-28"
+        }
+    },
+    {
+        "id": "rx_inn_028",
+        "text": "Document type: prescription\nPatient: Sergei Orlov\nDiagnosis: E03.9 Hypothyroidism\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-05-01\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-05-01"
+        }
+    },
+    {
+        "id": "rx_inn_029",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-06-02\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-06-02"
+        }
+    },
+    {
+        "id": "rx_inn_030",
+        "text": "Document type: prescription\nPatient: Pavel Nikitin\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-07-03\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-07-03"
+        }
+    },
+    {
+        "id": "rx_inn_031",
+        "text": "Document type: prescription\nPatient: Vera Titova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-08-04\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-08-04"
+        }
+    },
+    {
+        "id": "rx_inn_032",
+        "text": "Document type: prescription\nPatient: Andrey Kuznetsov\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-09-05\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Andrey Kuznetsov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-09-05"
+        }
+    },
+    {
+        "id": "rx_inn_033",
+        "text": "Document type: prescription\nPatient: Svetlana Guseva\nDiagnosis: I10 Essential hypertension\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-10-06\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-10-06"
+        }
+    },
+    {
+        "id": "rx_inn_034",
+        "text": "Document type: prescription\nPatient: Kirill Smirnov\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-11-07\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-11-07"
+        }
+    },
+    {
+        "id": "rx_inn_035",
+        "text": "Document type: prescription\nPatient: Natalia Popova\nDiagnosis: R51 Headache NOS\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-12-08\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-12-08"
+        }
+    },
+    {
+        "id": "rx_inn_036",
+        "text": "Document type: prescription\nPatient: Maxim Vasiliev\nDiagnosis: K35 Acute appendicitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-01-09\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-01-09"
+        }
+    },
+    {
+        "id": "rx_inn_037",
+        "text": "Document type: prescription\nPatient: Yulia Novikova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-02-10\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-02-10"
+        }
+    },
+    {
+        "id": "rx_inn_038",
+        "text": "Document type: prescription\nPatient: Roman Mikhailov\nDiagnosis: J18.9 Pneumonia\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-03-11\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Roman Mikhailov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-03-11"
+        }
+    },
+    {
+        "id": "rx_inn_039",
+        "text": "Document type: prescription\nPatient: Tatiana Egorova\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-04-12\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-04-12"
+        }
+    },
+    {
+        "id": "rx_inn_040",
+        "text": "Document type: prescription\nPatient: Ivan Petrov\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-05-13\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-05-13"
+        }
+    },
+    {
+        "id": "rx_inn_041",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-06-14\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-06-14"
+        }
+    },
+    {
+        "id": "rx_inn_042",
+        "text": "Document type: prescription\nPatient: Alexey Volkov\nDiagnosis: M54.5 Low back pain\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-07-15\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-07-15"
+        }
+    },
+    {
+        "id": "rx_inn_043",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: E03.9 Hypothyroidism\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-08-16\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-08-16"
+        }
+    },
+    {
+        "id": "rx_inn_044",
+        "text": "Document type: prescription\nPatient: Dmitry Ivanov\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-09-17\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-09-17"
+        }
+    },
+    {
+        "id": "rx_inn_045",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: J06.9 Acute URI\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-10-18\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-10-18"
+        }
+    },
+    {
+        "id": "rx_inn_046",
+        "text": "Document type: prescription\nPatient: Nikolai Semenov\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-11-19\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-11-19"
+        }
+    },
+    {
+        "id": "rx_inn_047",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-12-20\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-12-20"
+        }
+    },
+    {
+        "id": "rx_inn_048",
+        "text": "Document type: prescription\nPatient: Sergei Orlov\nDiagnosis: I10 Essential hypertension\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-01-21\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-01-21"
+        }
+    },
+    {
+        "id": "rx_inn_049",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: N39.0 Urinary tract infection\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-02-22\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-02-22"
+        }
+    },
+    {
+        "id": "rx_inn_050",
+        "text": "Document type: prescription\nPatient: Pavel Nikitin\nDiagnosis: R51 Headache NOS\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-03-23\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-03-23"
+        }
+    },
+    {
+        "id": "rx_inn_051",
+        "text": "Document type: prescription\nPatient: Vera Titova\nDiagnosis: K35 Acute appendicitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-04-24\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-04-24"
+        }
+    },
+    {
+        "id": "rx_inn_052",
+        "text": "Document type: prescription\nPatient: Andrey Kuznetsov\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-05-25\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Andrey Kuznetsov"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-05-25"
+        }
+    },
+    {
+        "id": "rx_inn_053",
+        "text": "Document type: prescription\nPatient: Svetlana Guseva\nDiagnosis: J18.9 Pneumonia\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-06-26\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-06-26"
+        }
+    },
+    {
+        "id": "rx_inn_054",
+        "text": "Document type: prescription\nPatient: Kirill Smirnov\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-07-27\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-07-27"
+        }
+    },
+    {
+        "id": "rx_inn_055",
+        "text": "Document type: prescription\nPatient: Natalia Popova\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-08-28\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-08-28"
+        }
+    },
+    {
+        "id": "rx_inn_056",
+        "text": "Document type: prescription\nPatient: Maxim Vasiliev\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-09-01\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-09-01"
+        }
+    },
+    {
+        "id": "rx_inn_057",
+        "text": "Document type: prescription\nPatient: Yulia Novikova\nDiagnosis: M54.5 Low back pain\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-10-02\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-10-02"
+        }
+    },
+    {
+        "id": "rx_inn_058",
+        "text": "Document type: prescription\nPatient: Roman Mikhailov\nDiagnosis: E03.9 Hypothyroidism\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-11-03\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Roman Mikhailov"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-11-03"
+        }
+    },
+    {
+        "id": "rx_inn_059",
+        "text": "Document type: prescription\nPatient: Tatiana Egorova\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-12-04\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-12-04"
+        }
+    },
+    {
+        "id": "rx_inn_060",
+        "text": "Document type: prescription\nPatient: Ivan Petrov\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-01-05\nRp: Paracetamol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-01-05"
+        }
+    },
+    {
+        "id": "rx_inn_061",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-02-06\nRp: Metformin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-02-06"
+        }
+    },
+    {
+        "id": "rx_inn_062",
+        "text": "Document type: prescription\nPatient: Alexey Volkov\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-03-07\nRp: Amlodipine",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-03-07"
+        }
+    },
+    {
+        "id": "rx_inn_063",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: I10 Essential hypertension\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-04-08\nRp: Ciprofloxacin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-04-08"
+        }
+    },
+    {
+        "id": "rx_inn_064",
+        "text": "Document type: prescription\nPatient: Dmitry Ivanov\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-05-09\nRp: Ibuprofen",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-05-09"
+        }
+    },
+    {
+        "id": "rx_inn_065",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: R51 Headache NOS\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-06-10\nRp: Amoxicillin-clavulanate",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-06-10"
+        }
+    },
+    {
+        "id": "rx_inn_066",
+        "text": "Document type: prescription\nPatient: Nikolai Semenov\nDiagnosis: K35 Acute appendicitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-07-11\nRp: Azithromycin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-07-11"
+        }
+    },
+    {
+        "id": "rx_inn_067",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-08-12\nRp: Omeprazole",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
             "document_date": "2024-08-12"
         }
     },
     {
-        "id": "dx_002",
-        "text": "Diagnosis Report\nPatient: Светлана Гусева\nDiagnosis: M54.5 Боль в пояснице\nDate: 2024-08-15",
+        "id": "rx_inn_068",
+        "text": "Document type: prescription\nPatient: Sergei Orlov\nDiagnosis: J18.9 Pneumonia\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-09-13\nRp: Levetiracetam",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-09-13"
+        }
+    },
+    {
+        "id": "rx_inn_069",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-10-14\nRp: Aspirin",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-10-14"
+        }
+    },
+    {
+        "id": "rx_brand_000",
+        "text": "Document type: prescription\nPatient: Иван Петров\nDiagnosis: J06.9 ОРВИ\nMedication: Нурофен\nDosage: 200 mg\nDate: 2024-01-01\nRp: Нурофен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Иван Петров"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "ОРВИ"
+            },
+            "treatment": {
+                "medication": "Нурофен",
+                "dosage": "200 mg"
+            },
+            "document_date": "2024-01-01"
+        }
+    },
+    {
+        "id": "rx_brand_001",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Panadol\nDosage: 500 mg\nDate: 2024-02-02\nRp: Panadol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Panadol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-02-02"
+        }
+    },
+    {
+        "id": "rx_brand_002",
+        "text": "Document type: prescription\nPatient: Алексей Волков\nDiagnosis: E11.9 Сахарный диабет 2 типа\nMedication: Вольтарен\nDosage: 50 mg twice daily\nDate: 2024-03-03\nRp: Вольтарен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Алексей Волков"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Сахарный диабет 2 типа"
+            },
+            "treatment": {
+                "medication": "Вольтарен",
+                "dosage": "50 mg twice daily"
+            },
+            "document_date": "2024-03-03"
+        }
+    },
+    {
+        "id": "rx_brand_003",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: I10 Essential hypertension\nMedication: Омез\nDosage: 20 mg OD\nDate: 2024-04-04\nRp: Омез",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Омез",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-04-04"
+        }
+    },
+    {
+        "id": "rx_brand_004",
+        "text": "Document type: prescription\nPatient: Дмитрий Иванов\nDiagnosis: N39.0 Инфекция мочевых путей\nMedication: Амоксиклав\nDosage: 625 mg BID\nDate: 2024-05-05\nRp: Амоксиклав",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Дмитрий Иванов"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Инфекция мочевых путей"
+            },
+            "treatment": {
+                "medication": "Амоксиклав",
+                "dosage": "625 mg BID"
+            },
+            "document_date": "2024-05-05"
+        }
+    },
+    {
+        "id": "rx_brand_005",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: R51 Headache NOS\nMedication: Нимесил\nDosage: 100 mg BID\nDate: 2024-06-06\nRp: Нимесил",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Нимесил",
+                "dosage": "100 mg BID"
+            },
+            "document_date": "2024-06-06"
+        }
+    },
+    {
+        "id": "rx_brand_006",
+        "text": "Document type: prescription\nPatient: Николай Семёнов\nDiagnosis: K35 Острый аппендицит\nMedication: Терафлю\nDosage: 1 sachet TID\nDate: 2024-07-07\nRp: Терафлю",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Николай Семёнов"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Острый аппендицит"
+            },
+            "treatment": {
+                "medication": "Терафлю",
+                "dosage": "1 sachet TID"
+            },
+            "document_date": "2024-07-07"
+        }
+    },
+    {
+        "id": "rx_brand_007",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Но-шпа\nDosage: 40 mg TID\nDate: 2024-08-08\nRp: Но-шпа",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Но-шпа",
+                "dosage": "40 mg TID"
+            },
+            "document_date": "2024-08-08"
+        }
+    },
+    {
+        "id": "rx_brand_008",
+        "text": "Document type: prescription\nPatient: Сергей Орлов\nDiagnosis: J18.9 Пневмония\nMedication: Супрастин\nDosage: 25 mg at night\nDate: 2024-09-09\nRp: Супрастин",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Сергей Орлов"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Пневмония"
+            },
+            "treatment": {
+                "medication": "Супрастин",
+                "dosage": "25 mg at night"
+            },
+            "document_date": "2024-09-09"
+        }
+    },
+    {
+        "id": "rx_brand_009",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Эспумизан\nDosage: 40 mg QID\nDate: 2024-10-10\nRp: Эспумизан",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Эспумизан",
+                "dosage": "40 mg QID"
+            },
+            "document_date": "2024-10-10"
+        }
+    },
+    {
+        "id": "rx_brand_010",
+        "text": "Document type: prescription\nPatient: Павел Никитин\nDiagnosis: G40.9 Эпилепсия\nMedication: Нурофен\nDosage: 200 mg\nDate: 2024-11-11\nRp: Нурофен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Павел Никитин"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Эпилепсия"
+            },
+            "treatment": {
+                "medication": "Нурофен",
+                "dosage": "200 mg"
+            },
+            "document_date": "2024-11-11"
+        }
+    },
+    {
+        "id": "rx_brand_011",
+        "text": "Document type: prescription\nPatient: Vera Titova\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Panadol\nDosage: 500 mg\nDate: 2024-12-12\nRp: Panadol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Panadol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-12-12"
+        }
+    },
+    {
+        "id": "rx_brand_012",
+        "text": "Document type: prescription\nPatient: Андрей Кузнецов\nDiagnosis: M54.5 Боль в пояснице\nMedication: Вольтарен\nDosage: 50 mg twice daily\nDate: 2024-01-13\nRp: Вольтарен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Андрей Кузнецов"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Боль в пояснице"
+            },
+            "treatment": {
+                "medication": "Вольтарен",
+                "dosage": "50 mg twice daily"
+            },
+            "document_date": "2024-01-13"
+        }
+    },
+    {
+        "id": "rx_brand_013",
+        "text": "Document type: prescription\nPatient: Svetlana Guseva\nDiagnosis: E03.9 Hypothyroidism\nMedication: Омез\nDosage: 20 mg OD\nDate: 2024-02-14\nRp: Омез",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Омез",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-02-14"
+        }
+    },
+    {
+        "id": "rx_brand_014",
+        "text": "Document type: prescription\nPatient: Кирилл Петров\nDiagnosis: H81.1 Доброкачественное позиционное головокружение\nMedication: Амоксиклав\nDosage: 625 mg BID\nDate: 2024-03-15\nRp: Амоксиклав",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Кирилл Петров"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Доброкачественное позиционное головокружение"
+            },
+            "treatment": {
+                "medication": "Амоксиклав",
+                "dosage": "625 mg BID"
+            },
+            "document_date": "2024-03-15"
+        }
+    },
+    {
+        "id": "rx_brand_015",
+        "text": "Document type: prescription\nPatient: Natalia Popova\nDiagnosis: J06.9 Acute URI\nMedication: Нимесил\nDosage: 100 mg BID\nDate: 2024-04-16\nRp: Нимесил",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Нимесил",
+                "dosage": "100 mg BID"
+            },
+            "document_date": "2024-04-16"
+        }
+    },
+    {
+        "id": "rx_brand_016",
+        "text": "Document type: prescription\nPatient: Мария Волков\nDiagnosis: J03.9 Острый тонзиллит\nMedication: Терафлю\nDosage: 1 sachet TID\nDate: 2024-05-17\nRp: Терафлю",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Мария Волков"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Острый тонзиллит"
+            },
+            "treatment": {
+                "medication": "Терафлю",
+                "dosage": "1 sachet TID"
+            },
+            "document_date": "2024-05-17"
+        }
+    },
+    {
+        "id": "rx_brand_017",
+        "text": "Document type: prescription\nPatient: Yulia Novikova\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Но-шпа\nDosage: 40 mg TID\nDate: 2024-06-18\nRp: Но-шпа",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Но-шпа",
+                "dosage": "40 mg TID"
+            },
+            "document_date": "2024-06-18"
+        }
+    },
+    {
+        "id": "rx_brand_018",
+        "text": "Document type: prescription\nPatient: Ольга Иванов\nDiagnosis: I10 Эссенциальная гипертензия\nMedication: Супрастин\nDosage: 25 mg at night\nDate: 2024-07-19\nRp: Супрастин",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ольга Иванов"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Эссенциальная гипертензия"
+            },
+            "treatment": {
+                "medication": "Супрастин",
+                "dosage": "25 mg at night"
+            },
+            "document_date": "2024-07-19"
+        }
+    },
+    {
+        "id": "rx_brand_019",
+        "text": "Document type: prescription\nPatient: Tatiana Egorova\nDiagnosis: N39.0 Urinary tract infection\nMedication: Эспумизан\nDosage: 40 mg QID\nDate: 2024-08-20\nRp: Эспумизан",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Эспумизан",
+                "dosage": "40 mg QID"
+            },
+            "document_date": "2024-08-20"
+        }
+    },
+    {
+        "id": "rx_brand_020",
+        "text": "Document type: prescription\nPatient: Елена Семёнов\nDiagnosis: R51 Головная боль\nMedication: Нурофен\nDosage: 200 mg\nDate: 2024-09-21\nRp: Нурофен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Елена Семёнов"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Головная боль"
+            },
+            "treatment": {
+                "medication": "Нурофен",
+                "dosage": "200 mg"
+            },
+            "document_date": "2024-09-21"
+        }
+    },
+    {
+        "id": "rx_brand_021",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: K35 Acute appendicitis\nMedication: Panadol\nDosage: 500 mg\nDate: 2024-10-22\nRp: Panadol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Panadol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-10-22"
+        }
+    },
+    {
+        "id": "rx_brand_022",
+        "text": "Document type: prescription\nPatient: Анна Орлов\nDiagnosis: I21.0 Острый инфаркт миокарда\nMedication: Вольтарен\nDosage: 50 mg twice daily\nDate: 2024-11-23\nRp: Вольтарен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Анна Орлов"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Острый инфаркт миокарда"
+            },
+            "treatment": {
+                "medication": "Вольтарен",
+                "dosage": "50 mg twice daily"
+            },
+            "document_date": "2024-11-23"
+        }
+    },
+    {
+        "id": "rx_brand_023",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: J18.9 Pneumonia\nMedication: Омез\nDosage: 20 mg OD\nDate: 2024-12-24\nRp: Омез",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Омез",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-12-24"
+        }
+    },
+    {
+        "id": "rx_brand_024",
+        "text": "Document type: prescription\nPatient: Ирина Никитин\nDiagnosis: K29.7 Гастрит\nMedication: Амоксиклав\nDosage: 625 mg BID\nDate: 2024-01-25\nRp: Амоксиклав",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ирина Никитин"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Гастрит"
+            },
+            "treatment": {
+                "medication": "Амоксиклав",
+                "dosage": "625 mg BID"
+            },
+            "document_date": "2024-01-25"
+        }
+    },
+    {
+        "id": "rx_brand_025",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Нимесил\nDosage: 100 mg BID\nDate: 2024-02-26\nRp: Нимесил",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Нимесил",
+                "dosage": "100 mg BID"
+            },
+            "document_date": "2024-02-26"
+        }
+    },
+    {
+        "id": "rx_brand_026",
+        "text": "Document type: prescription\nPatient: Вера Кузнецов\nDiagnosis: J45.9 Астма\nMedication: Терафлю\nDosage: 1 sachet TID\nDate: 2024-03-27\nRp: Терафлю",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Вера Кузнецов"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Астма"
+            },
+            "treatment": {
+                "medication": "Терафлю",
+                "dosage": "1 sachet TID"
+            },
+            "document_date": "2024-03-27"
+        }
+    },
+    {
+        "id": "rx_brand_027",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: M54.5 Low back pain\nMedication: Но-шпа\nDosage: 40 mg TID\nDate: 2024-04-28\nRp: Но-шпа",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Но-шпа",
+                "dosage": "40 mg TID"
+            },
+            "document_date": "2024-04-28"
+        }
+    },
+    {
+        "id": "rx_brand_028",
+        "text": "Document type: prescription\nPatient: Светлана Петров\nDiagnosis: E03.9 Гипотиреоз\nMedication: Супрастин\nDosage: 25 mg at night\nDate: 2024-05-01\nRp: Супрастин",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Светлана Петров"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Гипотиреоз"
+            },
+            "treatment": {
+                "medication": "Супрастин",
+                "dosage": "25 mg at night"
+            },
+            "document_date": "2024-05-01"
+        }
+    },
+    {
+        "id": "rx_brand_029",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Эспумизан\nDosage: 40 mg QID\nDate: 2024-06-02\nRp: Эспумизан",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Эспумизан",
+                "dosage": "40 mg QID"
+            },
+            "document_date": "2024-06-02"
+        }
+    },
+    {
+        "id": "rx_brand_030",
+        "text": "Document type: prescription\nPatient: Иван Волков\nDiagnosis: J06.9 ОРВИ\nMedication: Нурофен\nDosage: 200 mg\nDate: 2024-07-03\nRp: Нурофен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Иван Волков"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "ОРВИ"
+            },
+            "treatment": {
+                "medication": "Нурофен",
+                "dosage": "200 mg"
+            },
+            "document_date": "2024-07-03"
+        }
+    },
+    {
+        "id": "rx_brand_031",
+        "text": "Document type: prescription\nPatient: Vera Titova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Panadol\nDosage: 500 mg\nDate: 2024-08-04\nRp: Panadol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Panadol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-08-04"
+        }
+    },
+    {
+        "id": "rx_brand_032",
+        "text": "Document type: prescription\nPatient: Алексей Иванов\nDiagnosis: E11.9 Сахарный диабет 2 типа\nMedication: Вольтарен\nDosage: 50 mg twice daily\nDate: 2024-09-05\nRp: Вольтарен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Алексей Иванов"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Сахарный диабет 2 типа"
+            },
+            "treatment": {
+                "medication": "Вольтарен",
+                "dosage": "50 mg twice daily"
+            },
+            "document_date": "2024-09-05"
+        }
+    },
+    {
+        "id": "rx_brand_033",
+        "text": "Document type: prescription\nPatient: Svetlana Guseva\nDiagnosis: I10 Essential hypertension\nMedication: Омез\nDosage: 20 mg OD\nDate: 2024-10-06\nRp: Омез",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Омез",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-10-06"
+        }
+    },
+    {
+        "id": "rx_brand_034",
+        "text": "Document type: prescription\nPatient: Дмитрий Семёнов\nDiagnosis: N39.0 Инфекция мочевых путей\nMedication: Амоксиклав\nDosage: 625 mg BID\nDate: 2024-11-07\nRp: Амоксиклав",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Дмитрий Семёнов"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Инфекция мочевых путей"
+            },
+            "treatment": {
+                "medication": "Амоксиклав",
+                "dosage": "625 mg BID"
+            },
+            "document_date": "2024-11-07"
+        }
+    },
+    {
+        "id": "rx_brand_035",
+        "text": "Document type: prescription\nPatient: Natalia Popova\nDiagnosis: R51 Headache NOS\nMedication: Нимесил\nDosage: 100 mg BID\nDate: 2024-12-08\nRp: Нимесил",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Нимесил",
+                "dosage": "100 mg BID"
+            },
+            "document_date": "2024-12-08"
+        }
+    },
+    {
+        "id": "rx_brand_036",
+        "text": "Document type: prescription\nPatient: Николай Орлов\nDiagnosis: K35 Острый аппендицит\nMedication: Терафлю\nDosage: 1 sachet TID\nDate: 2024-01-09\nRp: Терафлю",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Николай Орлов"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Острый аппендицит"
+            },
+            "treatment": {
+                "medication": "Терафлю",
+                "dosage": "1 sachet TID"
+            },
+            "document_date": "2024-01-09"
+        }
+    },
+    {
+        "id": "rx_brand_037",
+        "text": "Document type: prescription\nPatient: Yulia Novikova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Но-шпа\nDosage: 40 mg TID\nDate: 2024-02-10\nRp: Но-шпа",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Но-шпа",
+                "dosage": "40 mg TID"
+            },
+            "document_date": "2024-02-10"
+        }
+    },
+    {
+        "id": "rx_brand_038",
+        "text": "Document type: prescription\nPatient: Сергей Никитин\nDiagnosis: J18.9 Пневмония\nMedication: Супрастин\nDosage: 25 mg at night\nDate: 2024-03-11\nRp: Супрастин",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Сергей Никитин"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Пневмония"
+            },
+            "treatment": {
+                "medication": "Супрастин",
+                "dosage": "25 mg at night"
+            },
+            "document_date": "2024-03-11"
+        }
+    },
+    {
+        "id": "rx_brand_039",
+        "text": "Document type: prescription\nPatient: Tatiana Egorova\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Эспумизан\nDosage: 40 mg QID\nDate: 2024-04-12\nRp: Эспумизан",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Эспумизан",
+                "dosage": "40 mg QID"
+            },
+            "document_date": "2024-04-12"
+        }
+    },
+    {
+        "id": "rx_brand_040",
+        "text": "Document type: prescription\nPatient: Павел Кузнецов\nDiagnosis: G40.9 Эпилепсия\nMedication: Нурофен\nDosage: 200 mg\nDate: 2024-05-13\nRp: Нурофен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Павел Кузнецов"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Эпилепсия"
+            },
+            "treatment": {
+                "medication": "Нурофен",
+                "dosage": "200 mg"
+            },
+            "document_date": "2024-05-13"
+        }
+    },
+    {
+        "id": "rx_brand_041",
+        "text": "Document type: prescription\nPatient: Maria Sokolova\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Panadol\nDosage: 500 mg\nDate: 2024-06-14\nRp: Panadol",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Panadol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-06-14"
+        }
+    },
+    {
+        "id": "rx_brand_042",
+        "text": "Document type: prescription\nPatient: Андрей Петров\nDiagnosis: M54.5 Боль в пояснице\nMedication: Вольтарен\nDosage: 50 mg twice daily\nDate: 2024-07-15\nRp: Вольтарен",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Андрей Петров"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Боль в пояснице"
+            },
+            "treatment": {
+                "medication": "Вольтарен",
+                "dosage": "50 mg twice daily"
+            },
+            "document_date": "2024-07-15"
+        }
+    },
+    {
+        "id": "rx_brand_043",
+        "text": "Document type: prescription\nPatient: Olga Morozova\nDiagnosis: E03.9 Hypothyroidism\nMedication: Омез\nDosage: 20 mg OD\nDate: 2024-08-16\nRp: Омез",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Омез",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-08-16"
+        }
+    },
+    {
+        "id": "rx_brand_044",
+        "text": "Document type: prescription\nPatient: Кирилл Волков\nDiagnosis: H81.1 Доброкачественное позиционное головокружение\nMedication: Амоксиклав\nDosage: 625 mg BID\nDate: 2024-09-17\nRp: Амоксиклав",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Кирилл Волков"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Доброкачественное позиционное головокружение"
+            },
+            "treatment": {
+                "medication": "Амоксиклав",
+                "dosage": "625 mg BID"
+            },
+            "document_date": "2024-09-17"
+        }
+    },
+    {
+        "id": "rx_brand_045",
+        "text": "Document type: prescription\nPatient: Elena Pavlova\nDiagnosis: J06.9 Acute URI\nMedication: Нимесил\nDosage: 100 mg BID\nDate: 2024-10-18\nRp: Нимесил",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Нимесил",
+                "dosage": "100 mg BID"
+            },
+            "document_date": "2024-10-18"
+        }
+    },
+    {
+        "id": "rx_brand_046",
+        "text": "Document type: prescription\nPatient: Мария Иванов\nDiagnosis: J03.9 Острый тонзиллит\nMedication: Терафлю\nDosage: 1 sachet TID\nDate: 2024-11-19\nRp: Терафлю",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Мария Иванов"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Острый тонзиллит"
+            },
+            "treatment": {
+                "medication": "Терафлю",
+                "dosage": "1 sachet TID"
+            },
+            "document_date": "2024-11-19"
+        }
+    },
+    {
+        "id": "rx_brand_047",
+        "text": "Document type: prescription\nPatient: Anna Krylova\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Но-шпа\nDosage: 40 mg TID\nDate: 2024-12-20\nRp: Но-шпа",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Но-шпа",
+                "dosage": "40 mg TID"
+            },
+            "document_date": "2024-12-20"
+        }
+    },
+    {
+        "id": "rx_brand_048",
+        "text": "Document type: prescription\nPatient: Ольга Семёнов\nDiagnosis: I10 Эссенциальная гипертензия\nMedication: Супрастин\nDosage: 25 mg at night\nDate: 2024-01-21\nRp: Супрастин",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Ольга Семёнов"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Эссенциальная гипертензия"
+            },
+            "treatment": {
+                "medication": "Супрастин",
+                "dosage": "25 mg at night"
+            },
+            "document_date": "2024-01-21"
+        }
+    },
+    {
+        "id": "rx_brand_049",
+        "text": "Document type: prescription\nPatient: Irina Fomina\nDiagnosis: N39.0 Urinary tract infection\nMedication: Эспумизан\nDosage: 40 mg QID\nDate: 2024-02-22\nRp: Эспумизан",
+        "expected_type": "prescription",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Эспумизан",
+                "dosage": "40 mg QID"
+            },
+            "document_date": "2024-02-22"
+        }
+    },
+    {
+        "id": "dc_000",
+        "text": "Discharge Summary\nPatient: Ivan Petrov\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-01-01",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-01-01"
+        }
+    },
+    {
+        "id": "dc_001",
+        "text": "Discharge Summary\nPatient: Maria Sokolova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-02-02",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-02-02"
+        }
+    },
+    {
+        "id": "dc_002",
+        "text": "Discharge Summary\nPatient: Alexey Volkov\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-03-03",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-03-03"
+        }
+    },
+    {
+        "id": "dc_003",
+        "text": "Discharge Summary\nPatient: Olga Morozova\nDiagnosis: I10 Essential hypertension\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-04-04",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-04-04"
+        }
+    },
+    {
+        "id": "dc_004",
+        "text": "Discharge Summary\nPatient: Dmitry Ivanov\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-05-05",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-05-05"
+        }
+    },
+    {
+        "id": "dc_005",
+        "text": "Discharge Summary\nPatient: Elena Pavlova\nDiagnosis: R51 Headache NOS\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-06-06",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-06-06"
+        }
+    },
+    {
+        "id": "dc_006",
+        "text": "Discharge Summary\nPatient: Nikolai Semenov\nDiagnosis: K35 Acute appendicitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-07-07",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-07-07"
+        }
+    },
+    {
+        "id": "dc_007",
+        "text": "Discharge Summary\nPatient: Anna Krylova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-08-08",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-08-08"
+        }
+    },
+    {
+        "id": "dc_008",
+        "text": "Discharge Summary\nPatient: Sergei Orlov\nDiagnosis: J18.9 Pneumonia\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-09-09",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-09-09"
+        }
+    },
+    {
+        "id": "dc_009",
+        "text": "Discharge Summary\nPatient: Irina Fomina\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-10-10",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-10-10"
+        }
+    },
+    {
+        "id": "dc_010",
+        "text": "Discharge Summary\nPatient: Pavel Nikitin\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-11-11",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-11-11"
+        }
+    },
+    {
+        "id": "dc_011",
+        "text": "Discharge Summary\nPatient: Vera Titova\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-12-12",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-12-12"
+        }
+    },
+    {
+        "id": "dc_012",
+        "text": "Discharge Summary\nPatient: Andrey Kuznetsov\nDiagnosis: M54.5 Low back pain\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-01-13",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Andrey Kuznetsov"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-01-13"
+        }
+    },
+    {
+        "id": "dc_013",
+        "text": "Discharge Summary\nPatient: Svetlana Guseva\nDiagnosis: E03.9 Hypothyroidism\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-02-14",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-02-14"
+        }
+    },
+    {
+        "id": "dc_014",
+        "text": "Discharge Summary\nPatient: Kirill Smirnov\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-03-15",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-03-15"
+        }
+    },
+    {
+        "id": "dc_015",
+        "text": "Discharge Summary\nPatient: Natalia Popova\nDiagnosis: J06.9 Acute URI\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-04-16",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-04-16"
+        }
+    },
+    {
+        "id": "dc_016",
+        "text": "Discharge Summary\nPatient: Maxim Vasiliev\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-05-17",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-05-17"
+        }
+    },
+    {
+        "id": "dc_017",
+        "text": "Discharge Summary\nPatient: Yulia Novikova\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-06-18",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-06-18"
+        }
+    },
+    {
+        "id": "dc_018",
+        "text": "Discharge Summary\nPatient: Roman Mikhailov\nDiagnosis: I10 Essential hypertension\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-07-19",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Roman Mikhailov"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-07-19"
+        }
+    },
+    {
+        "id": "dc_019",
+        "text": "Discharge Summary\nPatient: Tatiana Egorova\nDiagnosis: N39.0 Urinary tract infection\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-08-20",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-08-20"
+        }
+    },
+    {
+        "id": "dc_020",
+        "text": "Discharge Summary\nPatient: Ivan Petrov\nDiagnosis: R51 Headache NOS\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-09-21",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-09-21"
+        }
+    },
+    {
+        "id": "dc_021",
+        "text": "Discharge Summary\nPatient: Maria Sokolova\nDiagnosis: K35 Acute appendicitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-10-22",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-10-22"
+        }
+    },
+    {
+        "id": "dc_022",
+        "text": "Discharge Summary\nPatient: Alexey Volkov\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-11-23",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-11-23"
+        }
+    },
+    {
+        "id": "dc_023",
+        "text": "Discharge Summary\nPatient: Olga Morozova\nDiagnosis: J18.9 Pneumonia\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-12-24",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-12-24"
+        }
+    },
+    {
+        "id": "dc_024",
+        "text": "Discharge Summary\nPatient: Dmitry Ivanov\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-01-25",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-01-25"
+        }
+    },
+    {
+        "id": "dc_025",
+        "text": "Discharge Summary\nPatient: Elena Pavlova\nDiagnosis: G40.9 Epilepsy, unspecified\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-02-26",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-02-26"
+        }
+    },
+    {
+        "id": "dc_026",
+        "text": "Discharge Summary\nPatient: Nikolai Semenov\nDiagnosis: J45.9 Asthma, unspecified\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-03-27",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Nikolai Semenov"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-03-27"
+        }
+    },
+    {
+        "id": "dc_027",
+        "text": "Discharge Summary\nPatient: Anna Krylova\nDiagnosis: M54.5 Low back pain\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-04-28",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Low back pain"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-04-28"
+        }
+    },
+    {
+        "id": "dc_028",
+        "text": "Discharge Summary\nPatient: Sergei Orlov\nDiagnosis: E03.9 Hypothyroidism\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-05-01",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-05-01"
+        }
+    },
+    {
+        "id": "dc_029",
+        "text": "Discharge Summary\nPatient: Irina Fomina\nDiagnosis: H81.1 Benign paroxysmal vertigo\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-06-02",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Irina Fomina"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-06-02"
+        }
+    },
+    {
+        "id": "dc_030",
+        "text": "Discharge Summary\nPatient: Pavel Nikitin\nDiagnosis: J06.9 Acute URI\nMedication: Paracetamol\nDosage: 500 mg\nDate: 2024-07-03",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "Acute URI"
+            },
+            "treatment": {
+                "medication": "Paracetamol",
+                "dosage": "500 mg"
+            },
+            "document_date": "2024-07-03"
+        }
+    },
+    {
+        "id": "dc_031",
+        "text": "Discharge Summary\nPatient: Vera Titova\nDiagnosis: J03.9 Acute tonsillitis\nMedication: Metformin\nDosage: 850 mg twice daily\nDate: 2024-08-04",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": {
+                "medication": "Metformin",
+                "dosage": "850 mg twice daily"
+            },
+            "document_date": "2024-08-04"
+        }
+    },
+    {
+        "id": "dc_032",
+        "text": "Discharge Summary\nPatient: Andrey Kuznetsov\nDiagnosis: E11.9 Type 2 diabetes\nMedication: Amlodipine\nDosage: 5 mg once daily\nDate: 2024-09-05",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Andrey Kuznetsov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": {
+                "medication": "Amlodipine",
+                "dosage": "5 mg once daily"
+            },
+            "document_date": "2024-09-05"
+        }
+    },
+    {
+        "id": "dc_033",
+        "text": "Discharge Summary\nPatient: Svetlana Guseva\nDiagnosis: I10 Essential hypertension\nMedication: Ciprofloxacin\nDosage: 500 mg twice daily for 7 days\nDate: 2024-10-06",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Essential hypertension"
+            },
+            "treatment": {
+                "medication": "Ciprofloxacin",
+                "dosage": "500 mg twice daily for 7 days"
+            },
+            "document_date": "2024-10-06"
+        }
+    },
+    {
+        "id": "dc_034",
+        "text": "Discharge Summary\nPatient: Kirill Smirnov\nDiagnosis: N39.0 Urinary tract infection\nMedication: Ibuprofen\nDosage: 400 mg every 6 hours as needed\nDate: 2024-11-07",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": {
+                "medication": "Ibuprofen",
+                "dosage": "400 mg every 6 hours as needed"
+            },
+            "document_date": "2024-11-07"
+        }
+    },
+    {
+        "id": "dc_035",
+        "text": "Discharge Summary\nPatient: Natalia Popova\nDiagnosis: R51 Headache NOS\nMedication: Amoxicillin-clavulanate\nDosage: 875 mg BID for 5 days\nDate: 2024-12-08",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Natalia Popova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": {
+                "medication": "Amoxicillin-clavulanate",
+                "dosage": "875 mg BID for 5 days"
+            },
+            "document_date": "2024-12-08"
+        }
+    },
+    {
+        "id": "dc_036",
+        "text": "Discharge Summary\nPatient: Maxim Vasiliev\nDiagnosis: K35 Acute appendicitis\nMedication: Azithromycin\nDosage: 500 mg once daily for 3 days\nDate: 2024-01-09",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Acute appendicitis"
+            },
+            "treatment": {
+                "medication": "Azithromycin",
+                "dosage": "500 mg once daily for 3 days"
+            },
+            "document_date": "2024-01-09"
+        }
+    },
+    {
+        "id": "dc_037",
+        "text": "Discharge Summary\nPatient: Yulia Novikova\nDiagnosis: I21.0 Acute myocardial infarction\nMedication: Omeprazole\nDosage: 20 mg OD\nDate: 2024-02-10",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": {
+                "medication": "Omeprazole",
+                "dosage": "20 mg OD"
+            },
+            "document_date": "2024-02-10"
+        }
+    },
+    {
+        "id": "dc_038",
+        "text": "Discharge Summary\nPatient: Roman Mikhailov\nDiagnosis: J18.9 Pneumonia\nMedication: Levetiracetam\nDosage: 1000 mg BID\nDate: 2024-03-11",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Roman Mikhailov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": {
+                "medication": "Levetiracetam",
+                "dosage": "1000 mg BID"
+            },
+            "document_date": "2024-03-11"
+        }
+    },
+    {
+        "id": "dc_039",
+        "text": "Discharge Summary\nPatient: Tatiana Egorova\nDiagnosis: K29.7 Gastritis, unspecified\nMedication: Aspirin\nDosage: 100 mg OD\nDate: 2024-04-12",
+        "expected_type": "discharge",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Gastritis, unspecified"
+            },
+            "treatment": {
+                "medication": "Aspirin",
+                "dosage": "100 mg OD"
+            },
+            "document_date": "2024-04-12"
+        }
+    },
+    {
+        "id": "dx_000",
+        "text": "Заключение / диагноз\nPatient: Иван Петров\nDiagnosis: J06.9 ОРВИ\nDate: 2024-01-01",
         "expected_type": "diagnosis",
         "expected": {
-            "patient": {"full_name": "Светлана Гусева"},
-            "diagnosis": {"code": "M54.5", "name": "Боль в пояснице"},
+            "patient": {
+                "full_name": "Иван Петров"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "ОРВИ"
+            },
             "treatment": null,
-            "document_date": "2024-08-15"
+            "document_date": "2024-01-01"
+        }
+    },
+    {
+        "id": "dx_001",
+        "text": "Diagnosis Report\nPatient: Maria Sokolova\nDiagnosis: J03.9 Acute tonsillitis\nDate: 2024-02-02",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Maria Sokolova"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": null,
+            "document_date": "2024-02-02"
+        }
+    },
+    {
+        "id": "dx_002",
+        "text": "Diagnosis Report\nPatient: Alexey Volkov\nDiagnosis: E11.9 Type 2 diabetes\nDate: 2024-03-03",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": null,
+            "document_date": "2024-03-03"
         }
     },
     {
         "id": "dx_003",
-        "text": "Patient: Andrey Kuznetsov\nDiagnosis: E03.9 Hypothyroidism, unspecified\nDate: 2024-08-20",
+        "text": "Заключение / диагноз\nPatient: Ольга Морозова\nDiagnosis: I10 Эссенциальная гипертензия\nDate: 2024-04-04",
         "expected_type": "diagnosis",
         "expected": {
-            "patient": {"full_name": "Andrey Kuznetsov"},
-            "diagnosis": {"code": "E03.9", "name": "Hypothyroidism, unspecified"},
+            "patient": {
+                "full_name": "Ольга Морозова"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Эссенциальная гипертензия"
+            },
+            "treatment": null,
+            "document_date": "2024-04-04"
+        }
+    },
+    {
+        "id": "dx_004",
+        "text": "Diagnosis Report\nPatient: Dmitry Ivanov\nDiagnosis: N39.0 Urinary tract infection\nDate: 2024-05-05",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Dmitry Ivanov"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
+            "treatment": null,
+            "document_date": "2024-05-05"
+        }
+    },
+    {
+        "id": "dx_005",
+        "text": "Diagnosis Report\nPatient: Elena Pavlova\nDiagnosis: R51 Headache NOS\nDate: 2024-06-06",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Elena Pavlova"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
+            "treatment": null,
+            "document_date": "2024-06-06"
+        }
+    },
+    {
+        "id": "dx_006",
+        "text": "Заключение / диагноз\nPatient: Николай Семёнов\nDiagnosis: K35 Острый аппендицит\nDate: 2024-07-07",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Николай Семёнов"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Острый аппендицит"
+            },
+            "treatment": null,
+            "document_date": "2024-07-07"
+        }
+    },
+    {
+        "id": "dx_007",
+        "text": "Diagnosis Report\nPatient: Anna Krylova\nDiagnosis: I21.0 Acute myocardial infarction\nDate: 2024-08-08",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Anna Krylova"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": null,
+            "document_date": "2024-08-08"
+        }
+    },
+    {
+        "id": "dx_008",
+        "text": "Diagnosis Report\nPatient: Sergei Orlov\nDiagnosis: J18.9 Pneumonia\nDate: 2024-09-09",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Sergei Orlov"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": null,
+            "document_date": "2024-09-09"
+        }
+    },
+    {
+        "id": "dx_009",
+        "text": "Заключение / диагноз\nPatient: Ирина Фомина\nDiagnosis: K29.7 Гастрит\nDate: 2024-10-10",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Ирина Фомина"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Гастрит"
+            },
+            "treatment": null,
+            "document_date": "2024-10-10"
+        }
+    },
+    {
+        "id": "dx_010",
+        "text": "Diagnosis Report\nPatient: Pavel Nikitin\nDiagnosis: G40.9 Epilepsy, unspecified\nDate: 2024-11-11",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Pavel Nikitin"
+            },
+            "diagnosis": {
+                "code": "G40.9",
+                "name": "Epilepsy, unspecified"
+            },
+            "treatment": null,
+            "document_date": "2024-11-11"
+        }
+    },
+    {
+        "id": "dx_011",
+        "text": "Diagnosis Report\nPatient: Vera Titova\nDiagnosis: J45.9 Asthma, unspecified\nDate: 2024-12-12",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Vera Titova"
+            },
+            "diagnosis": {
+                "code": "J45.9",
+                "name": "Asthma, unspecified"
+            },
+            "treatment": null,
+            "document_date": "2024-12-12"
+        }
+    },
+    {
+        "id": "dx_012",
+        "text": "Заключение / диагноз\nPatient: Андрей Кузнецов\nDiagnosis: M54.5 Боль в пояснице\nDate: 2024-01-13",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Андрей Кузнецов"
+            },
+            "diagnosis": {
+                "code": "M54.5",
+                "name": "Боль в пояснице"
+            },
+            "treatment": null,
+            "document_date": "2024-01-13"
+        }
+    },
+    {
+        "id": "dx_013",
+        "text": "Diagnosis Report\nPatient: Svetlana Guseva\nDiagnosis: E03.9 Hypothyroidism\nDate: 2024-02-14",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Svetlana Guseva"
+            },
+            "diagnosis": {
+                "code": "E03.9",
+                "name": "Hypothyroidism"
+            },
+            "treatment": null,
+            "document_date": "2024-02-14"
+        }
+    },
+    {
+        "id": "dx_014",
+        "text": "Diagnosis Report\nPatient: Kirill Smirnov\nDiagnosis: H81.1 Benign paroxysmal vertigo\nDate: 2024-03-15",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Kirill Smirnov"
+            },
+            "diagnosis": {
+                "code": "H81.1",
+                "name": "Benign paroxysmal vertigo"
+            },
+            "treatment": null,
+            "document_date": "2024-03-15"
+        }
+    },
+    {
+        "id": "dx_015",
+        "text": "Заключение / диагноз\nPatient: Иван Соколова\nDiagnosis: J06.9 ОРВИ\nDate: 2024-04-16",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Иван Соколова"
+            },
+            "diagnosis": {
+                "code": "J06.9",
+                "name": "ОРВИ"
+            },
+            "treatment": null,
+            "document_date": "2024-04-16"
+        }
+    },
+    {
+        "id": "dx_016",
+        "text": "Diagnosis Report\nPatient: Maxim Vasiliev\nDiagnosis: J03.9 Acute tonsillitis\nDate: 2024-05-17",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Maxim Vasiliev"
+            },
+            "diagnosis": {
+                "code": "J03.9",
+                "name": "Acute tonsillitis"
+            },
+            "treatment": null,
+            "document_date": "2024-05-17"
+        }
+    },
+    {
+        "id": "dx_017",
+        "text": "Diagnosis Report\nPatient: Yulia Novikova\nDiagnosis: E11.9 Type 2 diabetes\nDate: 2024-06-18",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Yulia Novikova"
+            },
+            "diagnosis": {
+                "code": "E11.9",
+                "name": "Type 2 diabetes"
+            },
+            "treatment": null,
+            "document_date": "2024-06-18"
+        }
+    },
+    {
+        "id": "dx_018",
+        "text": "Заключение / диагноз\nPatient: Ольга Иванов\nDiagnosis: I10 Эссенциальная гипертензия\nDate: 2024-07-19",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Ольга Иванов"
+            },
+            "diagnosis": {
+                "code": "I10",
+                "name": "Эссенциальная гипертензия"
+            },
+            "treatment": null,
+            "document_date": "2024-07-19"
+        }
+    },
+    {
+        "id": "dx_019",
+        "text": "Diagnosis Report\nPatient: Tatiana Egorova\nDiagnosis: N39.0 Urinary tract infection\nDate: 2024-08-20",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Tatiana Egorova"
+            },
+            "diagnosis": {
+                "code": "N39.0",
+                "name": "Urinary tract infection"
+            },
             "treatment": null,
             "document_date": "2024-08-20"
         }
     },
     {
-        "id": "dx_004",
-        "text": "Diagnosis Report\nPatient: Vera Titova\nDiagnosis: H81.1 Benign paroxysmal vertigo\nDate: 2024-08-25",
+        "id": "dx_020",
+        "text": "Diagnosis Report\nPatient: Ivan Petrov\nDiagnosis: R51 Headache NOS\nDate: 2024-09-21",
         "expected_type": "diagnosis",
         "expected": {
-            "patient": {"full_name": "Vera Titova"},
-            "diagnosis": {"code": "H81.1", "name": "Benign paroxysmal vertigo"},
+            "patient": {
+                "full_name": "Ivan Petrov"
+            },
+            "diagnosis": {
+                "code": "R51",
+                "name": "Headache NOS"
+            },
             "treatment": null,
-            "document_date": "2024-08-25"
+            "document_date": "2024-09-21"
+        }
+    },
+    {
+        "id": "dx_021",
+        "text": "Заключение / диагноз\nPatient: Николай Крылова\nDiagnosis: K35 Острый аппендицит\nDate: 2024-10-22",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Николай Крылова"
+            },
+            "diagnosis": {
+                "code": "K35",
+                "name": "Острый аппендицит"
+            },
+            "treatment": null,
+            "document_date": "2024-10-22"
+        }
+    },
+    {
+        "id": "dx_022",
+        "text": "Diagnosis Report\nPatient: Alexey Volkov\nDiagnosis: I21.0 Acute myocardial infarction\nDate: 2024-11-23",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Alexey Volkov"
+            },
+            "diagnosis": {
+                "code": "I21.0",
+                "name": "Acute myocardial infarction"
+            },
+            "treatment": null,
+            "document_date": "2024-11-23"
+        }
+    },
+    {
+        "id": "dx_023",
+        "text": "Diagnosis Report\nPatient: Olga Morozova\nDiagnosis: J18.9 Pneumonia\nDate: 2024-12-24",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Olga Morozova"
+            },
+            "diagnosis": {
+                "code": "J18.9",
+                "name": "Pneumonia"
+            },
+            "treatment": null,
+            "document_date": "2024-12-24"
+        }
+    },
+    {
+        "id": "dx_024",
+        "text": "Заключение / диагноз\nPatient: Ирина Никитин\nDiagnosis: K29.7 Гастрит\nDate: 2024-01-25",
+        "expected_type": "diagnosis",
+        "expected": {
+            "patient": {
+                "full_name": "Ирина Никитин"
+            },
+            "diagnosis": {
+                "code": "K29.7",
+                "name": "Гастрит"
+            },
+            "treatment": null,
+            "document_date": "2024-01-25"
+        }
+    },
+    {
+        "id": "unk_000",
+        "text": "Meeting notes for the cardiology department\nWeekly case review agenda.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
         }
     },
     {
         "id": "unk_001",
-        "text": "Meeting notes for the cardiology department\nWeekly case review agenda: 9:00 AM, Conference Room B.\nCoffee and cookies will be provided.",
+        "text": "The weather is nice today. Please renew the office supplies order.",
         "expected_type": "unknown",
         "expected": {
             "patient": null,
@@ -166,7 +3463,7 @@
     },
     {
         "id": "unk_002",
-        "text": "The weather is nice today. Please remember to renew the office supplies order by Friday. Regards, Administration.",
+        "text": "Протокол собрания отдела продаж.\nОбсудили план на квартал.",
         "expected_type": "unknown",
         "expected": {
             "patient": null,
@@ -177,7 +3474,128 @@
     },
     {
         "id": "unk_003",
-        "text": "Протокол собрания отдела продаж.\nОбсудили план на квартал, бюджет и премии сотрудников.",
+        "text": "Shopping list: milk, bread, eggs, coffee.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_004",
+        "text": "CI pipeline failed on step lint. Please check ruff output.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_005",
+        "text": "Расписание тренировок: пн/ср/пт 19:00, зал 2.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_006",
+        "text": "Invoice #4412 paid. Thank you for your business.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_007",
+        "text": "Кот снова спит на клавиатуре. Это не медицинский документ.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_008",
+        "text": "Meeting notes for the cardiology department\nWeekly case review agenda.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_009",
+        "text": "The weather is nice today. Please renew the office supplies order.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_010",
+        "text": "Протокол собрания отдела продаж.\nОбсудили план на квартал.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_011",
+        "text": "Shopping list: milk, bread, eggs, coffee.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_012",
+        "text": "CI pipeline failed on step lint. Please check ruff output.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_013",
+        "text": "Расписание тренировок: пн/ср/пт 19:00, зал 2.",
+        "expected_type": "unknown",
+        "expected": {
+            "patient": null,
+            "diagnosis": null,
+            "treatment": null,
+            "document_date": null
+        }
+    },
+    {
+        "id": "unk_014",
+        "text": "Invoice #4412 paid. Thank you for your business.",
         "expected_type": "unknown",
         "expected": {
             "patient": null,

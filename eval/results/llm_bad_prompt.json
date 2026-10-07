@@ -1,0 +1,26 @@
+{
+  "provider": "llm",
+  "cases": 22,
+  "classification_ok": 22,
+  "classification_accuracy": 1.0,
+  "field_ok": 14,
+  "field_total": 53,
+  "field_accuracy_micro": 0.264,
+  "fields": {
+    "patient.full_name": {
+      "ok": 0,
+      "total": 19,
+      "accuracy": 0.0
+    },
+    "diagnosis.code": {
+      "ok": 14,
+      "total": 19,
+      "accuracy": 0.737
+    },
+    "treatment.medication": {
+      "ok": 0,
+      "total": 15,
+      "accuracy": 0.0
+    }
+  }
+}
