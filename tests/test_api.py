@@ -206,3 +206,89 @@ def test_process_document_endpoint_value_error(client, monkeypatch):
 
     assert response.status_code == 422
     assert "No text extracted" in response.json()["detail"]
+
+
+# ── GET /documents (list) ────────────────────────────────────────────────────
+
+
+def test_list_documents_empty(client):
+    test_client, _ = client
+
+    response = test_client.get("/api/v1/documents")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["items"] == []
+    assert body["total"] == 0
+    assert body["has_next"] is False
+
+
+def test_list_documents_returns_uploaded(client):
+    test_client, store = client
+    # загружаем два документа
+    for name in ("a.pdf", "b.pdf"):
+        test_client.post(
+            "/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")}
+        )
+
+    response = test_client.get("/api/v1/documents")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 2
+    assert len(body["items"]) == 2
+    # storage_path не должен утекать в ответе
+    for item in body["items"]:
+        assert "storage_path" not in item
+
+
+def test_list_documents_pagination(client):
+    test_client, store = client
+    # 3 документа, запрашиваем первые 2
+    for name in ("x.pdf", "y.pdf", "z.pdf"):
+        test_client.post(
+            "/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")}
+        )
+
+    response = test_client.get("/api/v1/documents?limit=2&offset=0")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["items"]) == 2
+    assert body["total"] == 3
+    assert body["has_next"] is True
+
+
+def test_list_documents_filter_by_status(client):
+    test_client, store = client
+    now = datetime.now(UTC)
+    # вручную добавляем документ в статусе DONE
+    done_id = uuid4()
+    store[done_id] = Document(
+        id=done_id,
+        filename="done.pdf",
+        storage_path="uploads/done.pdf",
+        status=ModelDocumentStatus.DONE,
+        created_at=now,
+        updated_at=now,
+    )
+    # и один QUEUED через обычный upload
+    test_client.post(
+        "/api/v1/documents", files={"file": ("q.pdf", b"%PDF-fake", "application/pdf")}
+    )
+
+    response = test_client.get("/api/v1/documents?status=done")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert body["items"][0]["status"] == "done"
+
+
+def test_list_documents_requires_api_key(client):
+    test_client, _ = client
+    test_client.headers.pop("X-API-Key", None)
+
+    response = test_client.get("/api/v1/documents")
+
+    assert response.status_code == 401

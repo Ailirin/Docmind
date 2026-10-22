@@ -7,7 +7,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.admin.auth import require_admin
 from app.db.session import get_db
@@ -15,22 +15,21 @@ from app.storage import documents as documents_storage
 
 router = APIRouter()
 
-# templates лежат в app/templates
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates"
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
 
 @router.get("/", response_class=HTMLResponse)
 @router.get("/documents", response_class=HTMLResponse)
-def documents_list(
+async def documents_list(
     request: Request,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     _: str = Depends(require_admin),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ):
-    docs = documents_storage.list_documents(db, limit=limit, offset=offset)
-    total = documents_storage.count_documents(db)
+    docs = await documents_storage.list_documents(db, limit=limit, offset=offset)
+    total = await documents_storage.count_documents(db)
 
     prev_offset = max(offset - limit, 0)
     next_offset = offset + limit
@@ -54,22 +53,18 @@ def documents_list(
 
 
 @router.get("/documents/{document_id}", response_class=HTMLResponse)
-def document_detail(
+async def document_detail(
     document_id: UUID,
     request: Request,
-    db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
     _: str = Depends(require_admin),
 ):
-    document = documents_storage.get_document(db, document_id)
+    document = await documents_storage.get_document(db, document_id)
     if document is None:
         raise HTTPException(status_code=404, detail="Document not found")
 
     extraction_json = (
-        json.dumps(
-            document.extraction_result,
-            ensure_ascii=False,
-            indent=2,
-        )
+        json.dumps(document.extraction_result, ensure_ascii=False, indent=2)
         if document.extraction_result
         else "-"
     )
@@ -77,8 +72,5 @@ def document_detail(
     return templates.TemplateResponse(
         request=request,
         name="admin/document_detail.html",
-        context={
-            "document": document,
-            "extraction_json": extraction_json,
-        },
+        context={"document": document, "extraction_json": extraction_json},
     )

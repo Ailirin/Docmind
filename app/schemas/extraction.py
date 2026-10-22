@@ -35,7 +35,7 @@ class MedicalExtraction(BaseModel):
 class ExtractionResult(BaseModel):
     document_type: str
     data: dict[str, Any]
-    extractor: str = Field(description="mock | llm")
+    extractor: str = Field(description="llm | mock | regex_fallback")
     confidence: float | None = Field(default=None, ge=0, le=1)
 
     @field_validator("confidence")

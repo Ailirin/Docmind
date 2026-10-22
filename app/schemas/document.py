@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DocumentStatus(str, Enum):
@@ -40,6 +40,16 @@ class DocumentResponse(BaseModel):
     error_message: str | None = None
     extracted_text: str | None = None
     extraction_result: dict | None = None
+
+
+class DocumentListResponse(BaseModel):
+    """Ответ на GET /documents с пагинацией."""
+
+    items: list[DocumentResponse]
+    total: int = Field(description="Общее кол-во документов по фильтру")
+    limit: int
+    offset: int
+    has_next: bool = Field(description="Есть ли следующая страница")
 
 
 class HealthResponse(BaseModel):

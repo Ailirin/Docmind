@@ -1,25 +1,28 @@
-"""Проверки зависимостей для readiness."""
+"""Async-проверки зависимостей для readiness-эндпоинта."""
 
+from __future__ import annotations
+
+import anyio
 import pika
 from sqlalchemy import text
 
 from app.core.config import settings
-from app.db.session import SessionLocal
 
 
-def check_database() -> bool:
+async def check_database() -> bool:
+    """Проверяет доступность PostgreSQL через async engine."""
     try:
-        db = SessionLocal()
-        try:
-            db.execute(text("SELECT 1"))
-            return True
-        finally:
-            db.close()
+        from app.db.session import async_engine
+
+        async with async_engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        return True
     except Exception:
         return False
 
 
-def check_rabbitmq() -> bool:
+def _rabbitmq_ping() -> bool:
+    """Sync-проверка RabbitMQ (выполняется в пуле потоков)."""
     try:
         params = pika.URLParameters(settings.rabbitmq_url)
         connection = pika.BlockingConnection(params)
@@ -27,3 +30,8 @@ def check_rabbitmq() -> bool:
         return True
     except Exception:
         return False
+
+
+async def check_rabbitmq() -> bool:
+    """Проверяет доступность RabbitMQ без блокировки event loop."""
+    return await anyio.to_thread.run_sync(_rabbitmq_ping)

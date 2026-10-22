@@ -1,17 +1,30 @@
-from unittest.mock import MagicMock
+"""Unit-тест слоя хранилища: SQL-statement содержит LIMIT и OFFSET."""
+
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.storage.documents import list_documents
 
 
-def test_list_documents_applies_limit_offset():
-    db = MagicMock()
-    db.scalars.return_value.all.return_value = []
+@pytest.mark.asyncio
+async def test_list_documents_applies_limit_offset():
+    """list_documents передаёт limit/offset в SQL-statement."""
+    captured: list = []
 
-    list_documents(db, limit=10, offset=20)
+    async def _fake_scalars(stmt):
+        captured.append(stmt)
+        result = MagicMock()
+        result.all.return_value = []
+        return result
 
-    stmt = db.scalars.call_args[0][0]
-    # у Statement есть _limit/_offset в SQLAlchemy 2; проще проверить compile
-    compiled = stmt.compile()
+    db = AsyncMock()
+    db.scalars.side_effect = _fake_scalars
+
+    await list_documents(db, limit=10, offset=20)
+
+    assert captured, "db.scalars не был вызван"
+    compiled = captured[0].compile()
     sql = str(compiled).lower()
     assert "limit" in sql
     assert "offset" in sql
