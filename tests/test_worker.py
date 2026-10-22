@@ -9,12 +9,11 @@ import pytest
 
 DOC_ID = uuid4()
 VALID_BODY = json.dumps({"document_id": str(DOC_ID)}).encode()
-VALID_BODY_WITH_RID = json.dumps(
-    {"document_id": str(DOC_ID), "request_id": "req-abc"}
-).encode()
+VALID_BODY_WITH_RID = json.dumps({"document_id": str(DOC_ID), "request_id": "req-abc"}).encode()
 
 
 # ── handle_message ───────────────────────────────────────────────────────────
+
 
 def _make_channel():
     ch = MagicMock()
@@ -122,6 +121,7 @@ def test_handle_message_always_closes_db(mock_session_cls, mock_process):
 
 # ── _connect_with_backoff ────────────────────────────────────────────────────
 
+
 @patch("app.worker.time.sleep")
 @patch("app.worker.pika.BlockingConnection")
 def test_connect_with_backoff_success_first_try(mock_conn_cls, mock_sleep):
@@ -170,6 +170,7 @@ def test_connect_with_backoff_raises_after_max_attempts(mock_conn_cls, mock_slee
 
 
 # ── SIGTERM/SIGINT handler ───────────────────────────────────────────────────
+
 
 def test_handle_signal_sets_shutdown_flag():
     """_handle_signal устанавливает _shutdown_requested = True."""

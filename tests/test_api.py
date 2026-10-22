@@ -227,7 +227,9 @@ def test_list_documents_returns_uploaded(client):
     test_client, store = client
     # загружаем два документа
     for name in ("a.pdf", "b.pdf"):
-        test_client.post("/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")})
+        test_client.post(
+            "/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")}
+        )
 
     response = test_client.get("/api/v1/documents")
 
@@ -244,7 +246,9 @@ def test_list_documents_pagination(client):
     test_client, store = client
     # 3 документа, запрашиваем первые 2
     for name in ("x.pdf", "y.pdf", "z.pdf"):
-        test_client.post("/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")})
+        test_client.post(
+            "/api/v1/documents", files={"file": (name, b"%PDF-fake", "application/pdf")}
+        )
 
     response = test_client.get("/api/v1/documents?limit=2&offset=0")
 
@@ -269,7 +273,9 @@ def test_list_documents_filter_by_status(client):
         updated_at=now,
     )
     # и один QUEUED через обычный upload
-    test_client.post("/api/v1/documents", files={"file": ("q.pdf", b"%PDF-fake", "application/pdf")})
+    test_client.post(
+        "/api/v1/documents", files={"file": ("q.pdf", b"%PDF-fake", "application/pdf")}
+    )
 
     response = test_client.get("/api/v1/documents?status=done")
 

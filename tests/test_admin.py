@@ -62,6 +62,7 @@ def admin_client(monkeypatch):
 
 # ── /admin/ — список документов ──────────────────────────────────────────────
 
+
 def test_admin_list_returns_200(admin_client):
     client, store = admin_client
     store[uuid4()] = _make_doc()
@@ -102,6 +103,7 @@ def test_admin_list_shows_documents(admin_client):
 
 
 # ── /admin/documents/{id} — карточка документа ──────────────────────────────
+
 
 def test_admin_detail_returns_200(admin_client):
     client, store = admin_client

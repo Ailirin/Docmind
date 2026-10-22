@@ -28,8 +28,7 @@ class FallbackEntityExtractor(EntityExtractor):
             return self.primary.extract(text, document_type)
         except Exception as exc:
             logger.warning(
-                "Primary extractor failed, switching to fallback. "
-                "primary=%s error=%s: %s",
+                "Primary extractor failed, switching to fallback. primary=%s error=%s: %s",
                 type(self.primary).__name__,
                 type(exc).__name__,
                 exc,

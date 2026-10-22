@@ -64,9 +64,7 @@ sync_engine = create_engine(
     max_overflow=settings.db_max_overflow,
     pool_timeout=settings.db_pool_timeout,
     pool_recycle=settings.db_pool_recycle,
-    connect_args={"options": "-c timezone=utc"}
-    if "postgresql" in settings.database_url
-    else {},
+    connect_args={"options": "-c timezone=utc"} if "postgresql" in settings.database_url else {},
 )
 
 SessionLocal = sessionmaker(bind=sync_engine, autoflush=False, autocommit=False)

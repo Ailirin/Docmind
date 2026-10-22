@@ -49,7 +49,9 @@ def _docker_available() -> bool:
 def pg_container():
     """PostgreSQL 16 в Docker. SKIP если Docker недоступен."""
     if not _docker_available():
-        pytest.skip("Docker daemon недоступен. Запустите Docker Desktop и повторите: pytest -m integration")
+        pytest.skip(
+            "Docker daemon недоступен. Запустите Docker Desktop и повторите: pytest -m integration"
+        )
     with PostgresContainer("postgres:16-alpine") as pg:
         yield pg
 

@@ -19,6 +19,7 @@ DOC_ID = UUID("12345678-1234-5678-1234-567812345678")
 
 # ── базовый класс ────────────────────────────────────────────────────────────
 
+
 def test_docmind_error_is_exception():
     exc = DocMindError("something went wrong")
     assert isinstance(exc, Exception)
@@ -26,6 +27,7 @@ def test_docmind_error_is_exception():
 
 
 # ── DocumentNotFoundError ────────────────────────────────────────────────────
+
 
 def test_document_not_found_message():
     exc = DocumentNotFoundError(DOC_ID)
@@ -43,6 +45,7 @@ def test_document_not_found_is_docmind_error():
 
 # ── DocumentProcessingError ──────────────────────────────────────────────────
 
+
 def test_document_processing_error_fields():
     exc = DocumentProcessingError(DOC_ID, "PDF is corrupted")
     assert exc.document_id == DOC_ID
@@ -52,6 +55,7 @@ def test_document_processing_error_fields():
 
 
 # ── EmptyDocumentError ───────────────────────────────────────────────────────
+
 
 def test_empty_document_error_is_processing_error():
     exc = EmptyDocumentError(DOC_ID)
@@ -66,6 +70,7 @@ def test_empty_document_error_message():
 
 # ── StorageError ─────────────────────────────────────────────────────────────
 
+
 def test_storage_error_is_docmind_error():
     exc = StorageError("disk full")
     assert isinstance(exc, DocMindError)
@@ -74,12 +79,14 @@ def test_storage_error_is_docmind_error():
 
 # ── QueueError ───────────────────────────────────────────────────────────────
 
+
 def test_queue_error_is_docmind_error():
     exc = QueueError("connection refused")
     assert isinstance(exc, DocMindError)
 
 
 # ── ExtractionError ──────────────────────────────────────────────────────────
+
 
 def test_extraction_error_fields():
     exc = ExtractionError("llm", "bad response")
@@ -94,6 +101,7 @@ def test_extraction_error_is_docmind_error():
 
 
 # ── catch-by-base ────────────────────────────────────────────────────────────
+
 
 def test_can_catch_all_via_base():
     """Все исключения ловятся через DocMindError."""

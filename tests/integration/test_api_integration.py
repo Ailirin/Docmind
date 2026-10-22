@@ -38,6 +38,7 @@ class TestUpload:
                 lambda: str(tmp_path / f"{doc_id}.pdf")
             )(),
         )
+
         # Более чистый способ мока async функции:
         async def _fake_save(doc_id, data):
             p = tmp_path / f"{doc_id}.pdf"

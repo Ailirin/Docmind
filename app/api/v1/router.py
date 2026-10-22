@@ -142,7 +142,9 @@ async def list_documents(
         ModelDocumentStatus(status.value) if status is not None else None
     )
 
-    docs = await documents_storage.list_documents(db, limit=limit, offset=offset, status=model_status)
+    docs = await documents_storage.list_documents(
+        db, limit=limit, offset=offset, status=model_status
+    )
     total = await documents_storage.count_documents(db, status=model_status)
 
     return DocumentListResponse(

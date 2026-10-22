@@ -73,7 +73,9 @@ def handle_message(ch, method, properties, body: bytes) -> None:
         db.close()
 
 
-def _connect_with_backoff(params: pika.URLParameters, max_attempts: int = 30) -> pika.BlockingConnection:
+def _connect_with_backoff(
+    params: pika.URLParameters, max_attempts: int = 30
+) -> pika.BlockingConnection:
     """Подключается к RabbitMQ с экспоненциальным backoff."""
     delay = 2.0
     for attempt in range(1, max_attempts + 1):

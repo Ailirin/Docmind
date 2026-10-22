@@ -132,7 +132,9 @@ class TestProcessDocumentFailure:
 
         monkeypatch.setattr("app.services.processor.get_extractor", lambda: MockEntityExtractor())
 
-        doc = _add_sync(sync_db_session, str(SAMPLES / "test_discharge.pdf"), status=DocumentStatus.FAILED)
+        doc = _add_sync(
+            sync_db_session, str(SAMPLES / "test_discharge.pdf"), status=DocumentStatus.FAILED
+        )
         doc.error_message = "previous error"
         sync_db_session.commit()
 

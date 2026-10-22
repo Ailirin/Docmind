@@ -29,17 +29,17 @@ class Settings(BaseSettings):
 
     # --- База данных ---
     database_url: str = "postgresql+asyncpg://docmind:docmind@localhost:5432/docmind"
-    db_pool_size: int = 10          # кол-во постоянных соединений в пуле
-    db_max_overflow: int = 20       # доп. соединения сверх pool_size
-    db_pool_timeout: int = 30       # секунд ожидания свободного соединения
-    db_pool_recycle: int = 1800     # секунд до принудительного пересоздания
+    db_pool_size: int = 10  # кол-во постоянных соединений в пуле
+    db_max_overflow: int = 20  # доп. соединения сверх pool_size
+    db_pool_timeout: int = 30  # секунд ожидания свободного соединения
+    db_pool_recycle: int = 1800  # секунд до принудительного пересоздания
 
     # --- Экстрактор ---
     extractor_provider: str = "mock"
     llm_api_key: str | None = None
     llm_model: str = "llama3.2:1b"
     llm_base_url: str = "http://127.0.0.1:11434/v1"
-    llm_timeout: int = 60           # секунд таймаут запроса к LLM
+    llm_timeout: int = 60  # секунд таймаут запроса к LLM
 
     # --- RabbitMQ ---
     rabbitmq_url: str = "amqp://docmind:docmind@localhost:5672/"

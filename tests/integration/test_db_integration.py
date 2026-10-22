@@ -95,8 +95,7 @@ class TestListDocuments:
     async def test_ordered_by_created_at_desc(self, db_session):
         """Документы возвращаются от новых к старым."""
         docs = [
-            await storage.add_document(db_session, make_doc(filename=f"{i}.pdf"))
-            for i in range(3)
+            await storage.add_document(db_session, make_doc(filename=f"{i}.pdf")) for i in range(3)
         ]
         result = await storage.list_documents(db_session)
 
