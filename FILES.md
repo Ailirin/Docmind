@@ -14,7 +14,8 @@
 | `requirements.txt` | Python-зависимости runtime (FastAPI, SQLAlchemy, asyncpg, pika, tenacity, python-json-logger…) |
 | `requirements-dev.txt` | Dev-зависимости: ruff, pytest-cov, httpx, testcontainers, pytest-asyncio |
 | `ruff.toml` | Конфиг Ruff: select E/F/I/UP/B; format double-quotes |
-| `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (только пакеты + код) |
+| `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (пакеты + код); non-root `appuser` через `gosu` |
+| `docker-entrypoint.sh` | Запускается как root: `chown /app/uploads → exec gosu appuser <cmd>`. Решает проблему прав на Docker volume при non-root пользователе |
 | `docker-compose.yml` | api / worker + PostgreSQL + RabbitMQ + Ollama + мониторинг-стек |
 | `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
 | `pytest.ini` | Настройки pytest: `testpaths`, addopts с покрытием; по умолчанию `-m "not integration"` |
@@ -34,7 +35,8 @@
 
 | Файл | Зачем |
 |------|--------|
-| `Dockerfile` | Stage 1 `builder`: системные deps + `pip install --prefix=/install`. Stage 2 `runtime`: копирует `/install`, `app/`, Alembic; CMD = uvicorn |
+| `Dockerfile` | Stage 1 `builder`: системные deps + `pip install --prefix=/install`. Stage 2 `runtime`: копирует `/install`, `app/`, Alembic; non-root `appuser`; ENTRYPOINT = `docker-entrypoint.sh` |
+| `docker-entrypoint.sh` | Entrypoint: запускается от root, исправляет права на примонтированный volume `/app/uploads`, затем `exec gosu appuser <cmd>` |
 | `docker-compose.yml` | `api` / `worker` + PostgreSQL / RabbitMQ / Ollama + monitoring stack; shared volume uploads; healthchecks |
 | `.dockerignore` | Ускоряет build и не тащит секреты/мусор в образ |
 

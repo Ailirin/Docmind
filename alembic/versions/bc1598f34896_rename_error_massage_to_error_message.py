@@ -32,5 +32,5 @@ def downgrade() -> None:
     op.alter_column(
         "documents",
         "error_message",
-        new_column_name="error_message",
+        new_column_name="error_massage",
     )

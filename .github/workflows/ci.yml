@@ -80,10 +80,6 @@ jobs:
     name: Integration tests
     runs-on: ubuntu-latest
     needs: test
-    # Запускаем только при пуше в основную ветку (не на каждый PR)
-    # чтобы не тратить Docker-минуты на каждый коммит
-    if: github.event_name == 'push'
-
     steps:
       - uses: actions/checkout@v4
 

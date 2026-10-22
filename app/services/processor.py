@@ -6,12 +6,12 @@ from uuid import UUID
 
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import DocumentNotFoundError, EmptyDocumentError
 from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION
-from app.models.document import DocumentStatus
+from app.models.document import Document, DocumentStatus
 from app.services.classifier import classify_document
 from app.services.extractors.factory import get_extractor
 from app.services.pdf_extractor import extract_text_from_pdf
-from app.storage import documents as documents_storage
 
 logger = logging.getLogger("docmind.processor")
 
@@ -20,10 +20,13 @@ def process_document(db: Session, document_id: UUID) -> None:
     """
     Синхронная обработка одного документа:
     queued/uploaded -> processing -> done | failed
+
+    Работает через sync Session (psycopg2) — используется worker'ом.
+    Не использует async-хранилище (storage/documents.py).
     """
-    document = documents_storage.get_document(db, document_id)
+    document = db.get(Document, document_id)
     if document is None:
-        raise ValueError(f"Document {document_id} not found")
+        raise DocumentNotFoundError(document_id)
 
     logger.info("processing start doc_id=%s", document_id)
     document.status = DocumentStatus.PROCESSING
@@ -34,7 +37,7 @@ def process_document(db: Session, document_id: UUID) -> None:
     try:
         text = extract_text_from_pdf(document.storage_path)
         if not text:
-            raise ValueError("No text extracted from PDF")
+            raise EmptyDocumentError(document_id)
 
         doc_type = classify_document(text)
         logger.info("classified doc_id=%s doc_type=%s", document_id, doc_type)
