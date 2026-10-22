@@ -1,16 +1,33 @@
-"""LLM-экстрактор: OpenAI-compatible API + валидация ответа через Pydantic."""
+"""LLM-экстрактор: OpenAI-compatible API + валидация ответа через Pydantic.
+
+Retry-стратегия (tenacity):
+- до 3 попыток при сетевых/временных ошибках (OSError, TimeoutError, openai.APIConnectionError);
+- экспоненциальный backoff: 1 → 2 → 4 секунды;
+- ValidationError и json.JSONDecodeError — не ретраим (данные плохие, не сеть).
+"""
 
 import json
+import logging
 import re
 
-from openai import OpenAI
+from openai import APIConnectionError, APITimeoutError, OpenAI
 from pydantic import ValidationError
+from tenacity import (
+    RetryError,
+    before_sleep_log,
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from app.core.config import settings
 from app.core.metrics import LLM_EXTRACTIONS
 from app.models.document import DocumentType
 from app.schemas.extraction import ExtractionResult, MedicalExtraction
 from app.services.extractors.base import EntityExtractor
+
+logger = logging.getLogger("docmind.extractor.llm")
 
 SYSTEM_PROMPT = """
 Ты извлекаешь сущности из медицинского текста.
@@ -139,13 +156,46 @@ def _fill_from_text(parsed: dict, text: str) -> dict:
     return parsed
 
 
+def _is_retryable(exc: BaseException) -> bool:
+    """Определяем, стоит ли ретраить исключение."""
+    return isinstance(exc, APIConnectionError | APITimeoutError | OSError | TimeoutError)
+
+
 class LlmEntityExtractor(EntityExtractor):
     def __init__(self) -> None:
         self.client = OpenAI(
             api_key=settings.llm_api_key or "unused",
             base_url=settings.llm_base_url,
+            timeout=settings.llm_timeout,
         )
         self.model = settings.llm_model
+
+    def _call_llm(self, kwargs: dict) -> str:
+        """
+        Выполняет запрос к LLM с retry при сетевых ошибках.
+
+        Сначала пробуем с json_object format (поддерживают не все модели),
+        при ошибке — без него.
+        """
+
+        @retry(
+            retry=retry_if_exception_type((APIConnectionError, APITimeoutError, OSError)),
+            stop=stop_after_attempt(3),
+            wait=wait_exponential(multiplier=1, min=1, max=8),
+            before_sleep=before_sleep_log(logger, logging.WARNING),
+            reraise=True,
+        )
+        def _attempt() -> str:
+            try:
+                response = self.client.chat.completions.create(
+                    **kwargs,
+                    response_format={"type": "json_object"},
+                )
+            except Exception:
+                response = self.client.chat.completions.create(**kwargs)
+            return (response.choices[0].message.content or "").strip()
+
+        return _attempt()
 
     def extract(self, text: str, document_type: DocumentType) -> ExtractionResult:
         kwargs = {
@@ -161,15 +211,7 @@ class LlmEntityExtractor(EntityExtractor):
         }
 
         try:
-            try:
-                response = self.client.chat.completions.create(
-                    **kwargs,
-                    response_format={"type": "json_object"},
-                )
-            except Exception:
-                response = self.client.chat.completions.create(**kwargs)
-
-            raw = (response.choices[0].message.content or "").strip()
+            raw = self._call_llm(kwargs)
             parsed = _extract_json_object(raw)
             parsed = _normalize_diagnosis_fields(parsed)
             parsed = _fill_from_text(parsed, text)
@@ -177,6 +219,10 @@ class LlmEntityExtractor(EntityExtractor):
             LLM_EXTRACTIONS.labels(result="success").inc()
         except (ValidationError, json.JSONDecodeError, ValueError, KeyError, TypeError):
             LLM_EXTRACTIONS.labels(result="validation_error").inc()
+            raise
+        except RetryError:
+            # Все попытки исчерпаны — пробрасываем как request_error
+            LLM_EXTRACTIONS.labels(result="request_error").inc()
             raise
         except Exception:
             LLM_EXTRACTIONS.labels(result="request_error").inc()

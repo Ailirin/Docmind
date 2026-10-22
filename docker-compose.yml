@@ -56,7 +56,7 @@ services:
       API_KEY: ${API_KEY}
       UPLOAD_DIR: /app/uploads
       MAX_UPLOAD_BYTES: "20971520"
-      DATABASE_URL: postgresql+psycopg2://docmind:docmind@db:5432/docmind
+      DATABASE_URL: postgresql+asyncpg://docmind:docmind@db:5432/docmind
       RABBITMQ_URL: amqp://docmind:docmind@rabbitmq:5672/
       RABBITMQ_QUEUE: documents.process
       RABBITMQ_DLQ: documents.process.dlq
@@ -87,7 +87,7 @@ services:
       APP_NAME: DocMind
       APP_VERSION: 0.1.0
       UPLOAD_DIR: /app/uploads
-      DATABASE_URL: postgresql+psycopg2://docmind:docmind@db:5432/docmind
+      DATABASE_URL: postgresql+asyncpg://docmind:docmind@db:5432/docmind
       RABBITMQ_URL: amqp://docmind:docmind@rabbitmq:5672/
       RABBITMQ_QUEUE: documents.process
       RABBITMQ_DLQ: documents.process.dlq
