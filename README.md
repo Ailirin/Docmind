@@ -200,7 +200,7 @@ venv\Scripts\python -m pytest -m "integration or not integration"
 - **Миграции БД** — схема версионируется через Alembic.
 - **Единый идентификатор запроса** — `X-Request-ID` сквозь API → очередь → worker.
 - **Метрики** — upload/process счётчики, histogram latency, fallback-счётчик; закрыты Basic Auth.
-- **CI/CD** — GitHub Actions: lint (Ruff) → unit-тесты (Python 3.12 + 3.13) → integration-тесты; автоотмена устаревших прогонов.
+- **CI/CD** — GitHub Actions: lint (Ruff) → unit-тесты (Python 3.12 + 3.13) → integration-тесты на каждом PR; автоотмена устаревших прогонов.
 
 ---
 

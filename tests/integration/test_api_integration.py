@@ -32,14 +32,6 @@ def _upload(client, filename: str = "test.pdf", content: bytes = b"%PDF-1.4 samp
 
 class TestUpload:
     async def test_upload_creates_db_record(self, api_client, db_session, tmp_path, monkeypatch):
-        monkeypatch.setattr(
-            "app.api.v1.router.save_upload",
-            lambda doc_id, data: __import__("asyncio").coroutine(
-                lambda: str(tmp_path / f"{doc_id}.pdf")
-            )(),
-        )
-
-        # Более чистый способ мока async функции:
         async def _fake_save(doc_id, data):
             p = tmp_path / f"{doc_id}.pdf"
             p.write_bytes(data)
