@@ -292,3 +292,71 @@ def test_list_documents_requires_api_key(client):
     response = test_client.get("/api/v1/documents")
 
     assert response.status_code == 401
+
+
+def test_process_document_endpoint_processing_error_returns_422(client, monkeypatch):
+    """EmptyDocumentError (DocMindError, не ValueError) должен давать 422, а не 500."""
+    from app.core.exceptions import EmptyDocumentError
+
+    test_client, store = client
+    doc_id = uuid4()
+    now = datetime.now(UTC)
+    store[doc_id] = Document(
+        id=doc_id,
+        filename="test.pdf",
+        storage_path="uploads/test.pdf",
+        status=ModelDocumentStatus.QUEUED,
+        created_at=now,
+        updated_at=now,
+    )
+
+    def fake_process(db, document_id: UUID) -> None:
+        raise EmptyDocumentError(document_id)
+
+    monkeypatch.setattr("app.api.v1.router.process_document", fake_process)
+
+    response = test_client.post(f"/api/v1/documents/{doc_id}/process")
+
+    assert response.status_code == 422
+    assert "No text extracted" in response.json()["detail"]
+
+
+def test_upload_returns_503_when_storage_fails(client, monkeypatch):
+    from app.core.exceptions import StorageError
+
+    test_client, store = client
+
+    async def failing_save(document_id: UUID, data: bytes) -> str:
+        raise StorageError("disk full")
+
+    monkeypatch.setattr("app.api.v1.router.save_upload", failing_save)
+
+    files = {"file": ("test.pdf", b"%PDF-1.4 fake", "application/pdf")}
+    response = test_client.post("/api/v1/documents", files=files)
+
+    assert response.status_code == 503
+    assert store == {}
+
+
+def test_upload_cleans_file_when_db_insert_fails(client, monkeypatch, tmp_path):
+    """Если запись в БД упала — файл на диске не должен остаться сиротой."""
+    test_client, _ = client
+    deleted: list[str] = []
+
+    async def failing_add(db, document):
+        raise RuntimeError("db down")
+
+    async def spy_delete(storage_path: str) -> None:
+        deleted.append(storage_path)
+
+    monkeypatch.setattr("app.api.v1.router.documents_storage.add_document", failing_add)
+    monkeypatch.setattr("app.api.v1.router.delete_upload", spy_delete)
+
+    files = {"file": ("test.pdf", b"%PDF-1.4 fake", "application/pdf")}
+    # TestClient по умолчанию пробрасывает серверные исключения в тест
+    try:
+        test_client.post("/api/v1/documents", files=files)
+    except RuntimeError:
+        pass
+
+    assert len(deleted) == 1

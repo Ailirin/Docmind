@@ -1,25 +1,12 @@
 """Pydantic-схемы ответов API для документов и health."""
 
 from datetime import datetime
-from enum import Enum
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
-class DocumentStatus(str, Enum):
-    UPLOADED = "uploaded"
-    QUEUED = "queued"
-    PROCESSING = "processing"
-    DONE = "done"
-    FAILED = "failed"
-
-
-class DocumentType(str, Enum):
-    DISCHARGE = "discharge"
-    PRESCRIPTION = "prescription"
-    DIAGNOSIS = "diagnosis"
-    UNKNOWN = "unknown"
+# Единый источник истины для enum — доменная модель (не дублируем в схемах).
+from app.models.document import DocumentStatus, DocumentType
 
 
 class DocumentCreateResponse(BaseModel):

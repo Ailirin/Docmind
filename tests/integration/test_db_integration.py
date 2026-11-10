@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -93,15 +94,37 @@ class TestListDocuments:
         assert len(result) == 3
 
     async def test_ordered_by_created_at_desc(self, db_session):
-        """Документы возвращаются от новых к старым."""
-        docs = [
-            await storage.add_document(db_session, make_doc(filename=f"{i}.pdf")) for i in range(3)
-        ]
+        """Документы возвращаются от новых к старым.
+
+        created_at задаём явно: server_default now() внутри одной транзакции
+        (SAVEPOINT-изоляция тестов) одинаков у всех строк и порядок не проверить.
+        """
+        base = datetime(2026, 1, 1, tzinfo=UTC)
+        docs = []
+        for i in range(3):
+            doc = make_doc(filename=f"{i}.pdf")
+            doc.created_at = base + timedelta(minutes=i)
+            docs.append(await storage.add_document(db_session, doc))
+
         result = await storage.list_documents(db_session)
 
         ids_returned = [d.id for d in result]
         ids_expected = [d.id for d in reversed(docs)]
         assert ids_returned == ids_expected
+
+    async def test_equal_created_at_has_stable_order(self, db_session):
+        """При одинаковом created_at порядок детерминирован (tie-breaker по id)."""
+        same = datetime(2026, 1, 1, tzinfo=UTC)
+        for _ in range(5):
+            doc = make_doc()
+            doc.created_at = same
+            await storage.add_document(db_session, doc)
+
+        first = [d.id for d in await storage.list_documents(db_session)]
+        second = [d.id for d in await storage.list_documents(db_session)]
+
+        assert first == second
+        assert first == sorted(first, reverse=True)
 
     async def test_limit_respected(self, db_session):
         for _ in range(5):

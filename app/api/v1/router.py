@@ -12,17 +12,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import require_api_key
 from app.api.health_checks import check_database, check_rabbitmq
 from app.core.config import settings
-from app.core.exceptions import DocumentNotFoundError
+from app.core.exceptions import DocumentNotFoundError, DocumentProcessingError, StorageError
 from app.core.metrics import DOCUMENTS_UPLOADED
 from app.db.session import SessionLocal, get_db
-from app.models.document import Document
-from app.models.document import DocumentStatus as ModelDocumentStatus
+from app.models.document import Document, DocumentStatus
 from app.queue.publisher import publish_document_process
 from app.schemas.document import (
     DocumentCreateResponse,
     DocumentListResponse,
     DocumentResponse,
-    DocumentStatus,
     HealthResponse,
     ReadyResponse,
 )
@@ -88,7 +86,8 @@ async def upload_document(
     doc_id = uuid4()
     logger.info("upload accepted doc_id=%s filename=%s", doc_id, file.filename)
 
-    data = await file.read()  # async чтение из upload stream
+    # Читаем максимум max+1 байт: не загружаем в память файл любого размера
+    data = await file.read(settings.max_upload_bytes + 1)
     if not data:
         raise HTTPException(status_code=400, detail="Empty file")
     if len(data) > settings.max_upload_bytes:
@@ -100,25 +99,32 @@ async def upload_document(
         raise HTTPException(status_code=400, detail="Invalid PDF file")
 
     # 1) сначала диск (async)
-    storage_path = await save_upload(doc_id, data)
+    try:
+        storage_path = await save_upload(doc_id, data)
+    except StorageError as exc:
+        raise HTTPException(status_code=503, detail="Storage unavailable") from exc
     logger.info("uploaded to storage doc_id=%s path=%s", doc_id, storage_path)
 
-    # 2) потом БД (async)
+    # 2) потом БД (async); при сбое не оставляем осиротевший файл на диске
     document = Document(
         id=doc_id,
         filename=file.filename,
         storage_path=storage_path,
-        status=ModelDocumentStatus.QUEUED,
+        status=DocumentStatus.QUEUED,
         document_type=None,
     )
-    await documents_storage.add_document(db, document)
+    try:
+        await documents_storage.add_document(db, document)
+    except Exception:
+        await delete_upload(storage_path)
+        raise
 
     # 3) очередь (sync pika — запускаем в пуле потоков)
     try:
         await anyio.to_thread.run_sync(lambda: publish_document_process(doc_id))
         logger.info("document enqueued doc_id=%s", doc_id)
     except Exception as exc:
-        document.status = ModelDocumentStatus.FAILED
+        document.status = DocumentStatus.FAILED
         document.error_message = f"Failed to enqueue: {exc}"[:1000]
         await db.commit()
         await delete_upload(storage_path)
@@ -138,14 +144,8 @@ async def list_documents(
     status: DocumentStatus | None = Query(default=None, description="Фильтр по статусу"),
 ) -> DocumentListResponse:
     """Возвращает список документов с пагинацией и опциональным фильтром по статусу."""
-    model_status: ModelDocumentStatus | None = (
-        ModelDocumentStatus(status.value) if status is not None else None
-    )
-
-    docs = await documents_storage.list_documents(
-        db, limit=limit, offset=offset, status=model_status
-    )
-    total = await documents_storage.count_documents(db, status=model_status)
+    docs = await documents_storage.list_documents(db, limit=limit, offset=offset, status=status)
+    total = await documents_storage.count_documents(db, status=status)
 
     return DocumentListResponse(
         items=[DocumentResponse.model_validate(doc) for doc in docs],
@@ -190,12 +190,11 @@ async def process_document_endpoint(
         await anyio.to_thread.run_sync(_run_sync)
     except DocumentNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-    except FileNotFoundError as exc:
+    except (DocumentProcessingError, ValueError, FileNotFoundError) as exc:
+        # документ помечен FAILED в processor; клиенту — 422, а не 500
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
-    # Обновляем состояние документа через async-сессию
+    # Перечитываем состояние (get_document использует populate_existing)
     document = await documents_storage.get_document(db, document_id)
     logger.info("manual process done doc_id=%s status=%s", document_id, document.status)
     return DocumentResponse.model_validate(document)

@@ -13,8 +13,11 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Alembic работает синхронно через psycopg2.
+# URL, явно заданный вызывающим кодом (alembic -x / Config.set_main_option, например
+# в интеграционных тестах с testcontainers), имеет приоритет над settings.
+# Иначе миграции молча уехали бы в БД из DATABASE_URL, а не в целевую.
 # Конвертируем asyncpg-URL → psycopg2-URL.
-_db_url = settings.database_url
+_db_url = config.get_main_option("sqlalchemy.url") or settings.database_url
 if "+asyncpg" in _db_url:
     _db_url = _db_url.replace("+asyncpg", "+psycopg2")
 elif _db_url.startswith("postgresql://"):

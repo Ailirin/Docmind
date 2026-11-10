@@ -24,7 +24,14 @@ async def add_document(db: AsyncSession, document: Document) -> Document:
 
 
 async def get_document(db: AsyncSession, document_id: UUID) -> Document | None:
-    return await db.get(Document, document_id)
+    """
+    Возвращает документ по id.
+
+    populate_existing=True — всегда перечитываем строку из БД, а не берём объект
+    из identity map сессии. Иначе после обработки в другой сессии (worker / sync-
+    сессия ручного process) повторный get вернул бы устаревший статус.
+    """
+    return await db.get(Document, document_id, populate_existing=True)
 
 
 async def list_documents(
@@ -42,7 +49,14 @@ async def list_documents(
         offset: смещение для пагинации.
         status: если задан — фильтруем только по этому статусу.
     """
-    stmt = select(Document).order_by(Document.created_at.desc()).limit(limit).offset(offset)
+    # id — tie-breaker: при равных created_at порядок детерминирован,
+    # иначе offset-пагинация может дублировать/пропускать строки между страницами.
+    stmt = (
+        select(Document)
+        .order_by(Document.created_at.desc(), Document.id.desc())
+        .limit(limit)
+        .offset(offset)
+    )
     if status is not None:
         stmt = stmt.where(Document.status == status)
     result = await db.scalars(stmt)

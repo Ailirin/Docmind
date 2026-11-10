@@ -53,6 +53,9 @@ def process_document(db: Session, document_id: UUID) -> None:
         PROCESS_DURATION.observe(time.perf_counter() - started)
 
     except Exception as exc:
+        # Если сбой был на уровне БД, сессия в невалидной транзакции —
+        # без rollback последующий commit статуса FAILED упадёт сам.
+        db.rollback()
         document.status = DocumentStatus.FAILED
         document.error_message = str(exc)[:1000]
         db.commit()

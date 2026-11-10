@@ -2,6 +2,7 @@
 
 import json
 import logging
+import threading
 from uuid import UUID
 
 import pika
@@ -15,6 +16,10 @@ logger = logging.getLogger("docmind.queue.publisher")
 
 _connection: pika.BlockingConnection | None = None
 _channel: pika.adapters.blocking_connection.BlockingChannel | None = None
+
+# pika.BlockingConnection НЕ потокобезопасна, а API вызывает publisher из пула потоков
+# (anyio.to_thread). RLock сериализует доступ к общему соединению/каналу.
+_lock = threading.RLock()
 
 
 def _get_channel():
@@ -44,21 +49,22 @@ def close_publisher() -> None:
     """Закрыть соединение publisher (вызывать при shutdown API)."""
     global _connection, _channel
 
-    if _channel is not None:
-        try:
-            if _channel.is_open:
-                _channel.close()
-        except Exception:
-            pass
-        _channel = None
+    with _lock:
+        if _channel is not None:
+            try:
+                if _channel.is_open:
+                    _channel.close()
+            except Exception:
+                pass
+            _channel = None
 
-    if _connection is not None:
-        try:
-            if _connection.is_open:
-                _connection.close()
-        except Exception:
-            pass
-        _connection = None
+        if _connection is not None:
+            try:
+                if _connection.is_open:
+                    _connection.close()
+            except Exception:
+                pass
+            _connection = None
 
 
 def publish_document_process(document_id: UUID, request_id: str | None = None) -> None:
@@ -80,9 +86,8 @@ def publish_document_process(document_id: UUID, request_id: str | None = None) -
         settings.rabbitmq_queue,
     )
 
-    try:
-        channel = _get_channel()
-        channel.basic_publish(
+    def _publish() -> None:
+        _get_channel().basic_publish(
             exchange="",
             routing_key=settings.rabbitmq_queue,
             body=body,
@@ -91,18 +96,13 @@ def publish_document_process(document_id: UUID, request_id: str | None = None) -
                 content_type="application/json",
             ),
         )
-    except (AMQPConnectionError, AMQPChannelError, OSError):
-        # один retry после сброса соединения
-        logger.warning("RabbitMQ publish failed, reconnecting once")
-        close_publisher()
-        channel = _get_channel()
-        channel.basic_publish(
-            exchange="",
-            routing_key=settings.rabbitmq_queue,
-            body=body,
-            properties=pika.BasicProperties(
-                delivery_mode=2,
-                content_type="application/json",
-            ),
-        )
+
+    with _lock:
+        try:
+            _publish()
+        except (AMQPConnectionError, AMQPChannelError, OSError):
+            # один retry после сброса соединения
+            logger.warning("RabbitMQ publish failed, reconnecting once")
+            close_publisher()
+            _publish()
     logger.info("published to rabbit doc_id=%s", document_id)

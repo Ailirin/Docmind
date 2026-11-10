@@ -1,5 +1,9 @@
 # DocMind
 
+[![CI](https://github.com/Ailirin/Docmind/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Ailirin/Docmind/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Ailirin/Docmind/branch/main/graph/badge.svg)](https://codecov.io/gh/Ailirin/Docmind)
+![Python](https://img.shields.io/badge/python-3.12%20%7C%203.13-blue)
+
 Сервис обработки медицинских PDF: принимает выписки, рецепты и диагнозы, извлекает структурированные данные и возвращает их через REST API.
 
 Где какой файл лежит: [`FILES.md`](FILES.md).
@@ -60,6 +64,22 @@
 - какое лечение (препарат и дозировка);
 - дата документа;
 - исходный извлечённый текст (для проверки человеком).
+
+---
+
+## Качество извлечения (eval)
+
+Gold-набор: **200 кейсов, 530 проверяемых полей** (`patient.full_name`, `diagnosis.code`, `treatment.medication`) + классификация типа документа. Запуск: `python scripts/run_eval.py --provider mock|llm`, подробности — [`eval/README.md`](eval/README.md).
+
+| Экстрактор | Классификация типа | Поля (micro) | patient | diagnosis.code | medication |
+|------------|-------------------:|-------------:|--------:|---------------:|-----------:|
+| mock (regex) | 200/200 = 100% | 530/530 = 100% | 185/185 | 185/185 | 160/160 |
+| LLM, промпт v2 | 200/200 = 100% | 114/530 = 21.5% | 95/185 | 14/185 | 5/160 |
+| LLM, промпт v3 (текущий) | 200/200 = 100% | 529/530 = **99.8%** | 185/185 | 185/185 | 159/160 |
+
+Переход промпта v2 → v3 поднял точность полей с 21.5% до 99.8% на одном и том же наборе — это результат итераций над промптом и нормализацией ответа (`_normalize_diagnosis_fields`, `_fill_from_text`).
+
+> **Важно:** кейсы синтетические — сгенерированы по шаблонам (`Patient: … Diagnosis: …`, `scripts/generate_eval_cases.py`), а не взяты из реальных документов. Поэтому 100% у regex-экстрактора ожидаемы: это регрессионный тест, а не оценка точности на реальных выписках. Оценка на реальных (обезличенных) документах — следующий шаг.
 
 ---
 
@@ -176,13 +196,13 @@ venv\Scripts\python -m pytest -m "integration or not integration"
 
 | Тип | Количество | Что проверяет |
 |-----|-----------|---------------|
-| Unit | 97 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas |
+| Unit | 102 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas |
 | Integration: file_storage | 14 | Реальная ФС: атомарность, round-trip, крупные файлы |
-| Integration: DB | 19 | Реальный PostgreSQL: CRUD, JSONB, фильтры, пагинация, count |
-| Integration: API | 16 | HTTP + реальная БД, пагинация и фильтры |
+| Integration: DB | 20 | Реальный PostgreSQL: CRUD, JSONB, фильтры, пагинация, стабильный порядок, count |
+| Integration: API | 14 | HTTP (`httpx.AsyncClient`) + реальная БД: upload, GET, пагинация и фильтры, валидации, API-ключ |
 | Integration: processor | 9 | Полный pipeline: sample PDF → DB, все статусы, идемпотентность |
 
-Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами.
+Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами. Миграции Alembic накатываются в контейнер один раз на сессию; приложение в тестах работает в одном event loop с тестом (`httpx.AsyncClient` + `ASGITransport`), см. [`FILES.md`](FILES.md#интеграционные-тесты-testsintegration). Всего: 102 unit + 57 integration = 159.
 
 ---
 

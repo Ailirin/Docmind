@@ -178,3 +178,24 @@ def test_extract_retries_on_connection_error():
 
     # Должно было 3 попытки (+ 1 fallback без json_object = 2 вызова на попытку)
     assert extractor.client.chat.completions.create.call_count >= 3
+
+
+def test_extract_falls_back_to_plain_mode_on_status_error():
+    """HTTP-ошибка (нет поддержки response_format) -> повтор запроса без json_object."""
+    import httpx
+    from openai import BadRequestError
+
+    extractor = _make_extractor(_GOOD_RESPONSE)
+    ok_response = extractor.client.chat.completions.create.return_value
+    request = httpx.Request("POST", "http://llm/v1/chat/completions")
+    err = BadRequestError(
+        "response_format unsupported",
+        response=httpx.Response(400, request=request),
+        body=None,
+    )
+    extractor.client.chat.completions.create.side_effect = [err, ok_response]
+
+    result = extractor.extract("text", DocumentType.DISCHARGE)
+
+    assert result.extractor == "llm"
+    assert extractor.client.chat.completions.create.call_count == 2
