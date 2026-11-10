@@ -1,0 +1,23 @@
+# Только для DEV. Docker Compose подхватывает этот файл автоматически при
+# `docker compose up`. Для prod его НЕ используйте:
+#   docker compose -f docker-compose.yml up -d
+#
+# Почему отдельно: promtail монтирует /var/run/docker.sock (пусть и :ro — через
+# сокет можно управлять Docker-демоном, то есть это фактически root на хосте)
+# ради автообнаружения контейнеров и меток compose_service / container.
+# В prod логи лучше собирать через logging driver или агент на хосте.
+
+services:
+  promtail:
+    image: grafana/promtail:3.6.8
+    container_name: docmind-promtail
+    command: -config.file=/etc/promtail/config.yml
+    ports:
+      - "127.0.0.1:9080:9080"
+    volumes:
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+    restart: unless-stopped

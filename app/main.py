@@ -1,7 +1,6 @@
 """Точка входа FastAPI: логирование, монтирование API v1 и HTML-админки."""
 
 import base64
-import secrets
 from contextlib import asynccontextmanager
 from uuid import uuid4
 
@@ -13,7 +12,9 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.admin.router import router as admin_router
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
+from app.core.http_metrics import HttpMetricsMiddleware
 from app.core.logging import clear_request_id, configure_logging, set_request_id
+from app.core.security import constant_time_equals
 from app.queue.publisher import close_publisher
 
 configure_logging()
@@ -73,14 +74,8 @@ class MetricsAuthMiddleware(BaseHTTPMiddleware):
                     headers={"WWW-Authenticate": "Basic"},
                 )
 
-            user_ok = secrets.compare_digest(
-                username.encode("utf-8"),
-                settings.metrics_username.encode("utf-8"),
-            )
-            pass_ok = secrets.compare_digest(
-                password.encode("utf-8"),
-                settings.metrics_password.encode("utf-8"),
-            )
+            user_ok = constant_time_equals(username, settings.metrics_username)
+            pass_ok = constant_time_equals(password, settings.metrics_password)
             if not (user_ok and pass_ok):
                 return PlainTextResponse(
                     "Unauthorized",
@@ -92,6 +87,7 @@ class MetricsAuthMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(MetricsAuthMiddleware)
 app.add_middleware(RequestIdMiddleware)
+app.add_middleware(HttpMetricsMiddleware)  # добавлен последним = самый внешний: меряет всё
 
 app.include_router(v1_router, prefix=settings.api_v1_prefix)
 app.include_router(admin_router, prefix="/admin", tags=["admin"])

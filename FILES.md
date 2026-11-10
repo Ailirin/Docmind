@@ -16,7 +16,8 @@
 | `ruff.toml` | Конфиг Ruff: select E/F/I/UP/B; format double-quotes |
 | `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (пакеты + код); non-root `appuser` через `gosu` |
 | `docker-entrypoint.sh` | Запускается как root: `chown /app/uploads → exec gosu appuser <cmd>`. Решает проблему прав на Docker volume при non-root пользователе |
-| `docker-compose.yml` | api / worker + PostgreSQL + RabbitMQ + Ollama + мониторинг-стек |
+| `docker-compose.yml` | api / worker + PostgreSQL (`log_min_duration_statement=500` — медленные запросы в лог → Loki) + RabbitMQ + Ollama + мониторинг-стек; пароли из `.env` (`${VAR:?}` — обязательные), порты только на `127.0.0.1`, версии образов закреплены |
+| `docker-compose.override.yml` | **Только dev**, подхватывается автоматически: `promtail` с монтированием `docker.sock`. Prod: `docker compose -f docker-compose.yml up -d` |
 | `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
 | `pytest.ini` | Настройки pytest: `testpaths`, addopts с покрытием; по умолчанию `-m "not integration"` |
 | `alembic.ini` | Конфиг Alembic (миграции) |
@@ -52,15 +53,15 @@
 | `app/core/metrics.py` | Prometheus `Counter` / `Histogram`: upload, process (done/failed), LLM, latency, `extractor_fallback_total` |
 | `app/main.py` | ASGI endpoint `/metrics` для API (Basic Auth) |
 | `app/worker.py` | HTTP metrics на `:8001/metrics` |
-| `monitoring/prometheus.yml` | Scrape `api:8000/metrics` и `worker:8001/metrics` |
+| `monitoring/prometheus.yml` | Scrape `api:8000/metrics` (Basic Auth, пароль через `password_file`, который создаётся при старте контейнера из `METRICS_PASSWORD`), `worker:8001/metrics` и `rabbitmq:15692/metrics/detailed` (глубина очереди и DLQ по очередям) |
 | `monitoring/loki-config.yml` | Конфиг Loki (порт 3100) |
-| `monitoring/promtail-config.yml` | Docker SD → лейблы `container` / `compose_service` → push в Loki |
+| `monitoring/promtail-config.yml` | (dev, через `docker-compose.override.yml`) Docker SD → лейблы `container` / `compose_service` → push в Loki |
 | `monitoring/grafana/provisioning/datasources/datasources.yml` | Datasources Prometheus + Loki |
 | `monitoring/grafana/provisioning/dashboards/dashboards.yml` | Provider папки dashboards |
-| `monitoring/grafana/dashboards/docmind-overview.json` | Dashboard DocMind Overview |
-| `scripts/load_upload.ps1` | Генерация нагрузки для демо метрик/логов |
+| `monitoring/grafana/dashboards/docmind-overview.json` | Dashboard DocMind Overview (40 панелей, 7 блоков: обзор за период, конвейер, «Что замедляет» (время по стадиям, пул БД, медленные запросы), LLM/fallback, HTTP API, ресурсы, логи Loki); переменная `service` для логов, аннотации «Перезапуски». После правки JSON на Windows выполните `docker compose restart grafana` (авто-перечитывание на bind mount не срабатывает) |
+| `scripts/load_upload.ps1` | Генерация нагрузки для демо метрик/логов; ключ API берёт из `-ApiKey`, `$env:API_KEY` или `.env` |
 
-Порты с хоста: Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.
+Порты с хоста (только `127.0.0.1`): Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.
 
 ---
 
@@ -75,16 +76,18 @@
 
 | Файл | Зачем |
 |------|--------|
-| `config.py` | Настройки из `.env`: БД (+ пул: `db_pool_size`, `max_overflow`, `pool_recycle`), LLM (`llm_timeout`), логи (`log_level`, `log_format`), RabbitMQ, метрики; `@model_validator` предупреждает о небезопасных дефолтах |
+| `config.py` | Настройки из `.env`: БД (+ пул: `db_pool_size`, `max_overflow`, `pool_recycle`), LLM (`llm_timeout`), логи (`log_level`, `log_format`), RabbitMQ, метрики; `@model_validator` `validate_secrets`: **отказ старта** при пустом `api_key` / `admin_password` / `metrics_password` (fail closed), предупреждение о слабых значениях (`change-me`, `admin`) вне debug |
+| `security.py` | `constant_time_equals(provided, expected)`: сравнение секретов за постоянное время; при пустом ожидаемом секрете всегда `False` (иначе `compare_digest("", "")` пускал бы по пустому ключу). Используется в API-ключе, админке и `/metrics` |
 | `logging.py` | Логирование в stdout: plaintext или JSON (`LOG_FORMAT=json`) через python-json-logger; `request_id` ContextVar + Filter; заглушка шумных библиотек (pika, httpx, openai) |
-| `metrics.py` | Prometheus Counter / Histogram: upload, process (done/failed), LLM outcomes, latency, `extractor_fallback_total` |
+| `metrics.py` | Prometheus Counter / Histogram: upload, process (done/failed), LLM outcomes, latency (корзины до 300 с), `extractor_fallback_total`, время по стадиям `docmind_process_stage_duration_seconds{stage=parse_pdf|classify|extract|save}` (контекст-менеджер `observe_stage`), HTTP (`docmind_http_requests_total`, `docmind_http_request_duration_seconds`); серии с известными лейблами предсоздаются, чтобы `rate()` не давал «No data» |
+| `http_metrics.py` | `HttpMetricsMiddleware` (чистый ASGI): метрики по шаблону роута (`/documents/{document_id}`), 404 → `unmatched`, необработанное исключение → 500, `/metrics` не учитывается |
 | `exceptions.py` | Кастомные доменные исключения: `DocumentNotFoundError`, `DocumentProcessingError`, `EmptyDocumentError`, `StorageError`, `QueueError`, `ExtractionError` |
 
 ### `app/api/`
 
 | Файл | Зачем |
 |------|--------|
-| `deps.py` | `require_api_key`: проверка заголовка `X-API-Key` через `secrets.compare_digest` |
+| `deps.py` | `require_api_key`: проверка заголовка `X-API-Key` через `constant_time_equals` (fail closed при пустом ключе) |
 | `health_checks.py` | `check_database()` и `check_rabbitmq()` для readiness |
 | `v1/router.py` | REST API v1: health/ready, `POST /documents` (upload), `GET /documents` (список + пагинация + фильтр по статусу), `GET /documents/{id}`, `POST /documents/{id}/process` |
 
@@ -100,6 +103,7 @@
 | Файл | Зачем |
 |------|--------|
 | `base.py` | Базовый класс SQLAlchemy `Base` для моделей |
+| `pool_metrics.py` | `DbPoolCollector`: метрика `docmind_db_pool_connections{engine,state}` (in_use / idle / limit) считается в момент скрейпа, без накладных расходов; нужна, чтобы отличить нехватку соединений в пуле от медленной БД |
 | `session.py` | Два движка из одного `DATABASE_URL`: `async_engine` (asyncpg) + `AsyncSessionLocal` + dependency `get_db` — для API; `sync_engine` (psycopg2, URL выводится через `_to_sync_url`) + `SessionLocal` — для worker, ручного `process` и Alembic. Пул настраивается (`pool_size`, `max_overflow`, `pool_timeout`, `pool_recycle`, `pool_pre_ping`) |
 
 ### `app/models/`
@@ -187,6 +191,9 @@
 | `test_publisher.py` | RabbitMQ publisher: повторное использование канала, `basic_publish` вызывается; 8 параллельных потоков сериализуются блокировкой (в канале одновременно не больше одного publish) |
 | `test_health.py` | Эндпоинты `/health` и `/health/ready`: ok / 503 / без API-ключа |
 | `test_metrics_auth.py` | Basic Auth для `/metrics`: 401 без заголовка, 200 с верным ключом |
+| `test_diagnostic_metrics.py` | Метрики стадий (`observe_stage`, в т.ч. при исключении) и `DbPoolCollector` на реальном `QueuePool` (in_use / idle / limit, пропуск `NullPool`) |
+| `test_http_metrics.py` | HTTP-метрики: шаблон роута вместо реального URL, группировка 404, 500 при исключении, гистограмма, игнор `/metrics`, предсозданные серии |
+| `test_security.py` | Безопасность: `constant_time_equals`; пустой API-ключ / пароль `/metrics` / пароль админки не дают обойти аутентификацию; `Settings` отказывается стартовать с пустым секретом и предупреждает о слабом; регрессия ReDoS в `MockEntityExtractor` (20 000 пробелов по всем полям < 2 с) |
 | `test_admin.py` | HTML-админка: список документов, карточка, 401 без auth, 401 неверный пароль, 404, пустой extraction_result |
 | `test_api.py` | API v1 полный цикл: upload (202, валидации, 503 при недоступной очереди), GET document, GET list (пагинация, фильтр по статусу, has_next), manual process (в т.ч. `DocumentProcessingError` → 422, а не 500); upload: 503 при `StorageError`, удаление файла при сбое записи в БД |
 

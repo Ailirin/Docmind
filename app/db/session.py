@@ -13,11 +13,13 @@ from __future__ import annotations
 
 from collections.abc import AsyncGenerator
 
+from prometheus_client import REGISTRY
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.core.config import settings
+from app.db.pool_metrics import DbPoolCollector
 
 
 def _to_sync_url(url: str) -> str:
@@ -68,3 +70,11 @@ sync_engine = create_engine(
 )
 
 SessionLocal = sessionmaker(bind=sync_engine, autoflush=False, autocommit=False)
+
+# ── Метрики пулов (docmind_db_pool_connections) ──────────────────────────────
+REGISTRY.register(
+    DbPoolCollector(
+        {"async": async_engine.sync_engine, "sync": sync_engine},
+        limit=settings.db_pool_size + settings.db_max_overflow,
+    )
+)

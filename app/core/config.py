@@ -5,16 +5,22 @@ import warnings
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Значения-заглушки, которые нельзя оставлять в продакшне
-_INSECURE_DEFAULTS: dict[str, str] = {
-    "api_key": "change-me",
-    "admin_password": "admin",
-    "metrics_password": "change-me",
+# Значения-заглушки, которые нельзя оставлять в продакшне (по полю — набор слабых значений).
+# admin_password: "change-me" задаётся в docker-compose/.env.example, поэтому тоже считается слабым.
+_INSECURE_DEFAULTS: dict[str, frozenset[str]] = {
+    "api_key": frozenset({"change-me"}),
+    "admin_password": frozenset({"admin", "change-me"}),
+    "metrics_password": frozenset({"change-me"}),
 }
+
+# Секреты, которые не могут быть пустыми ни при каких условиях (даже в debug).
+_REQUIRED_SECRETS = ("api_key", "admin_password", "metrics_password")
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    # extra="ignore": .env общий с docker compose и содержит переменные, которых нет в
+    # Settings (POSTGRES_PASSWORD, GRAFANA_ADMIN_PASSWORD и т.п.); иначе приложение не стартует.
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # --- Приложение ---
     app_name: str = "DocMind"
@@ -59,13 +65,26 @@ class Settings(BaseSettings):
     log_format: str = "text"  # "text" | "json"
 
     @model_validator(mode="after")
-    def warn_insecure_defaults(self) -> "Settings":
-        """Предупреждаем о небезопасных значениях при запуске вне дебаг-режима."""
+    def validate_secrets(self) -> "Settings":
+        """
+        Fail closed для пустых секретов, предупреждение для слабых.
+
+        Пустой секрет — это ошибка конфигурации (например, в docker-compose
+        `API_KEY: ${API_KEY}` при незаданной переменной даёт пустую строку),
+        поэтому приложение отказывается стартовать, а не работает без защиты.
+        """
+        for field in _REQUIRED_SECRETS:
+            if not (getattr(self, field, "") or "").strip():
+                raise ValueError(
+                    f"[DocMind] SECURITY: '{field}' не может быть пустым. "
+                    f"Задайте переменную окружения {field.upper()}."
+                )
+
         if self.debug:
             return self
-        for field, insecure_value in _INSECURE_DEFAULTS.items():
+        for field, insecure_values in _INSECURE_DEFAULTS.items():
             actual = getattr(self, field, None)
-            if actual == insecure_value:
+            if actual in insecure_values:
                 warnings.warn(
                     f"[DocMind] SECURITY: '{field}' использует небезопасное значение по умолчанию. "
                     f"Установите переменную окружения перед деплоем.",

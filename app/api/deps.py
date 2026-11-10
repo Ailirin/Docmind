@@ -1,10 +1,9 @@
 """Общие FastAPI-зависимости для API."""
 
-import secrets
-
 from fastapi import Header, HTTPException, status
 
 from app.core.config import settings
+from app.core.security import constant_time_equals
 
 
 def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
@@ -18,11 +17,7 @@ def require_api_key(x_api_key: str | None = Header(default=None)) -> None:
             detail="Missing API key",
         )
 
-    ok = secrets.compare_digest(
-        x_api_key.encode("utf-8"),
-        settings.api_key.encode("utf-8"),
-    )
-    if not ok:
+    if not constant_time_equals(x_api_key, settings.api_key):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",

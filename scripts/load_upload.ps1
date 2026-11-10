@@ -2,8 +2,18 @@ param(
     [int]$Count = 30,
     [int]$DelayMs = 200,
     [string]$BaseUrl = "http://127.0.0.1:8000",
-    [string]$PdfPath = "samples\test_discharge.pdf"
+    [string]$PdfPath = "samples\test_discharge.pdf",
+    # Ключ API: параметр -> переменная окружения API_KEY -> строка API_KEY= из .env
+    [string]$ApiKey = $env:API_KEY
 )
+
+if (-not $ApiKey -and (Test-Path ".env")) {
+    $line = Get-Content ".env" | Where-Object { $_ -match '^API_KEY=' } | Select-Object -First 1
+    if ($line) { $ApiKey = ($line -split '=', 2)[1].Trim() }
+}
+if (-not $ApiKey) {
+    throw "API key not found: pass -ApiKey, set `$env:API_KEY or add API_KEY= to .env"
+}
 
 if (-not (Test-Path $PdfPath)) {
     throw "PDF not found: $PdfPath"
@@ -24,6 +34,7 @@ $fail = 0
 for ($i = 1; $i -le $Count; $i++) {
     $code = curl.exe -s -o $tmpBody -w "%{http_code}" `
         -X POST $url `
+        -H "X-API-Key: $ApiKey" `
         -F "file=@${fullPdf};type=application/pdf"
 
     $body = ""
