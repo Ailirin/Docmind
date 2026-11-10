@@ -1402,6 +1402,522 @@
       ]
     },
     {
+      "id": 36,
+      "type": "row",
+      "title": "Что замедляет: стадии, пул БД, медленные запросы",
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 26
+      },
+      "panels": []
+    },
+    {
+      "id": 37,
+      "type": "timeseries",
+      "title": "Среднее время стадии (стек)",
+      "description": "Среднее время каждой стадии на документ: parse_pdf → classify → extract (LLM/regex) → save (commit). Высота стека = полное время обработки.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 27
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "spanNulls": true,
+            "lineInterpolation": "smooth",
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "barAlignment": 0
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "extract"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "parse_pdf"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "classify"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "save"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (stage) (rate(docmind_process_stage_duration_seconds_sum[$__rate_interval])) / sum by (stage) (rate(docmind_process_stage_duration_seconds_count[$__rate_interval]))",
+          "legendFormat": "{{stage}}",
+          "refId": "A",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "type": "piechart",
+      "title": "Доля времени по стадиям (за период)",
+      "description": "Сколько суммарно времени ушло на каждую стадию. Самый большой сектор — то, что оптимизировать в первую очередь.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 27
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "pieType": "donut",
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "sum by (stage) (increase(docmind_process_stage_duration_seconds_sum[$__range]))",
+          "legendFormat": "{{stage}}",
+          "refId": "A",
+          "editorMode": "code",
+          "instant": true,
+          "range": false
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "type": "timeseries",
+      "title": "p95 по стадиям",
+      "description": "«Хвост» каждой стадии. Если p95 extract сильно выше среднего — LLM периодически «зависает».",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 27
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "spanNulls": true,
+            "lineInterpolation": "smooth",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "barAlignment": 0
+          },
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "extract"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "orange"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "parse_pdf"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "blue"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "classify"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "purple"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "save"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(docmind_process_stage_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "{{stage}}",
+          "refId": "A",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Пул соединений БД",
+      "description": "Если «занято» упирается в лимит, запросы ждут соединение (pool_timeout) — это выглядит как медленный API, хотя БД ни при чём.",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 35
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 12,
+            "showPoints": "never",
+            "spanNulls": true,
+            "lineInterpolation": "smooth",
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "axisPlacement": "auto",
+            "barAlignment": 0
+          },
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "min": 0,
+          "decimals": 0
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "^лимит"
+            },
+            "properties": [
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "fill": "dash",
+                  "dash": [
+                    10,
+                    10
+                  ]
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "red"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": []
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "docmind_db_pool_connections{job=\"docmind-api\",engine=\"async\",state=\"in_use\"}",
+          "legendFormat": "API: занято",
+          "refId": "A",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "docmind_db_pool_connections{job=\"docmind-worker\",engine=\"sync\",state=\"in_use\"}",
+          "legendFormat": "Worker: занято",
+          "refId": "B",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "docmind_db_pool_connections{job=\"docmind-api\",engine=\"async\",state=\"limit\"}",
+          "legendFormat": "лимит (pool_size + max_overflow)",
+          "refId": "C",
+          "editorMode": "code",
+          "instant": false,
+          "range": true
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "type": "logs",
+      "title": "Медленные запросы Postgres (> 500 мс)",
+      "description": "Postgres пишет в лог запросы дольше log_min_duration_statement=500 мс (см. docker-compose.yml). Пусто — медленных запросов нет.",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 16,
+        "x": 8,
+        "y": 35
+      },
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "expr": "{compose_service=\"db\"} |= \"duration:\"",
+          "legendFormat": "",
+          "refId": "A",
+          "queryType": "range"
+        }
+      ]
+    },
+    {
       "id": 19,
       "type": "row",
       "title": "LLM и экстракторы",
@@ -1410,7 +1926,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 42
       },
       "panels": []
     },
@@ -1427,7 +1943,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 27
+        "y": 43
       },
       "fieldConfig": {
         "defaults": {
@@ -1548,7 +2064,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 27
+        "y": 43
       },
       "fieldConfig": {
         "defaults": {
@@ -1624,7 +2140,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 27
+        "y": 43
       },
       "fieldConfig": {
         "defaults": {
@@ -1711,7 +2227,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 35
+        "y": 51
       },
       "panels": []
     },
@@ -1728,7 +2244,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 36
+        "y": 52
       },
       "fieldConfig": {
         "defaults": {
@@ -1806,7 +2322,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 36
+        "y": 52
       },
       "fieldConfig": {
         "defaults": {
@@ -1942,7 +2458,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 36
+        "y": 52
       },
       "fieldConfig": {
         "defaults": {
@@ -2012,7 +2528,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 60
       },
       "panels": []
     },
@@ -2029,7 +2545,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 45
+        "y": 61
       },
       "fieldConfig": {
         "defaults": {
@@ -2103,7 +2619,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 45
+        "y": 61
       },
       "fieldConfig": {
         "defaults": {
@@ -2177,7 +2693,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 45
+        "y": 61
       },
       "fieldConfig": {
         "defaults": {
@@ -2240,7 +2756,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 68
       },
       "panels": []
     },
@@ -2257,7 +2773,7 @@
         "h": 6,
         "w": 24,
         "x": 0,
-        "y": 53
+        "y": 69
       },
       "fieldConfig": {
         "defaults": {
@@ -2406,7 +2922,7 @@
         "h": 11,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 75
       },
       "options": {
         "showTime": true,
@@ -2444,7 +2960,7 @@
         "h": 11,
         "w": 12,
         "x": 12,
-        "y": 59
+        "y": 75
       },
       "options": {
         "showTime": true,

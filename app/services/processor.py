@@ -7,7 +7,7 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import DocumentNotFoundError, EmptyDocumentError
-from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION
+from app.core.metrics import DOCUMENTS_PROCESSED, PROCESS_DURATION, observe_stage
 from app.models.document import Document, DocumentStatus
 from app.services.classifier import classify_document
 from app.services.extractors.factory import get_extractor
@@ -35,20 +35,24 @@ def process_document(db: Session, document_id: UUID) -> None:
 
     started = time.perf_counter()
     try:
-        text = extract_text_from_pdf(document.storage_path)
+        with observe_stage("parse_pdf"):
+            text = extract_text_from_pdf(document.storage_path)
         if not text:
             raise EmptyDocumentError(document_id)
 
-        doc_type = classify_document(text)
+        with observe_stage("classify"):
+            doc_type = classify_document(text)
         logger.info("classified doc_id=%s doc_type=%s", document_id, doc_type)
-        extraction = get_extractor().extract(text, doc_type)
+        with observe_stage("extract"):
+            extraction = get_extractor().extract(text, doc_type)
 
         document.extracted_text = text
         document.document_type = doc_type
         document.extraction_result = extraction.model_dump(mode="json")
         document.status = DocumentStatus.DONE
         logger.info("processing done doc_id=%s", document_id)
-        db.commit()
+        with observe_stage("save"):
+            db.commit()
         DOCUMENTS_PROCESSED.labels(status="done").inc()
         PROCESS_DURATION.observe(time.perf_counter() - started)
 

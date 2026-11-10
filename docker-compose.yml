@@ -16,6 +16,9 @@ services:
       # Применяется только при первой инициализации тома docmind_pgdata.
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-docmind}
       POSTGRES_DB: docmind
+    # Запросы дольше 500 мс пишутся в лог (`LOG: duration: ... statement: ...`);
+    # promtail отправляет их в Loki -> панель «Медленные запросы» на дашборде.
+    command: ["postgres", "-c", "log_min_duration_statement=500"]
     ports:
       - "127.0.0.1:5432:5432"
     volumes:

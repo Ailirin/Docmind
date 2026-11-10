@@ -1,5 +1,9 @@
 """Prometheus-метрики DocMind."""
 
+import time
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 from prometheus_client import Counter, Histogram
 
 DOCUMENTS_UPLOADED = Counter(
@@ -27,6 +31,27 @@ PROCESS_DURATION = Histogram(
     buckets=(0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60, 120, 300),
 )
 
+# Стадии конвейера: parse_pdf -> classify -> extract (LLM/regex) -> save (commit в БД).
+# Лейбл только из фиксированного набора (4 значения), поэтому кардинальность минимальна.
+PROCESS_STAGES = ("parse_pdf", "classify", "extract", "save")
+PROCESS_STAGE_DURATION = Histogram(
+    "docmind_process_stage_duration_seconds",
+    "Duration of a single document processing stage in seconds",
+    ["stage"],
+    buckets=(0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 30, 60, 120, 300),
+)
+
+
+@contextmanager
+def observe_stage(stage: str) -> Iterator[None]:
+    """Замеряет длительность стадии; пишет и при исключении (время до сбоя тоже важно)."""
+    started = time.perf_counter()
+    try:
+        yield
+    finally:
+        PROCESS_STAGE_DURATION.labels(stage=stage).observe(time.perf_counter() - started)
+
+
 EXTRACTOR_FALLBACK_TOTAL = Counter(
     "docmind_extractor_fallback_total",
     "Number of times the regex fallback extractor was used instead of LLM",
@@ -50,6 +75,8 @@ HTTP_REQUEST_DURATION = Histogram(
 # Предсоздаём серии с известными значениями лейблов. Иначе Prometheus не видит
 # метрику до первого события, и на дашборде rate()/increase() даёт «No data»,
 # а первый инкремент теряется (rate не может посчитать скачок от несуществующего 0).
+for _stage in PROCESS_STAGES:
+    PROCESS_STAGE_DURATION.labels(stage=_stage)
 for _status in ("done", "failed"):
     DOCUMENTS_PROCESSED.labels(status=_status)
 for _result in ("success", "validation_error", "request_error"):
