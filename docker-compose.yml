@@ -1,13 +1,23 @@
+# Секреты берутся из .env (см. .env.example). Конструкция ${VAR:?msg} — обязательная
+# переменная: без неё `docker compose up` падает с понятной ошибкой, а не стартует
+# с пустым/дефолтным паролем.
+#
+# Все порты опубликованы только на 127.0.0.1. Чтобы открыть наружу — меняйте явно.
+# Promtail (требует /var/run/docker.sock) вынесен в docker-compose.override.yml:
+# он подхватывается автоматически в dev; для prod запускайте
+#   docker compose -f docker-compose.yml up -d
+
 services:
   db:
     image: postgres:16-alpine
     container_name: docmind-db
     environment:
       POSTGRES_USER: docmind
-      POSTGRES_PASSWORD: docmind
+      # Применяется только при первой инициализации тома docmind_pgdata.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-docmind}
       POSTGRES_DB: docmind
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - docmind_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -18,10 +28,10 @@ services:
 
 
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.40.8
     container_name: docmind-ollama
     ports:
-      - "11434:11434"
+      - "127.0.0.1:11434:11434"
     volumes:
       - docmind_ollama:/root/.ollama
     restart: unless-stopped
@@ -31,11 +41,12 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: docmind-rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: docmind
-      RABBITMQ_DEFAULT_PASS: docmind
+      # Применяется только при первой инициализации тома docmind_rabbitmq.
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-docmind}
     volumes:
       - docmind_rabbitmq:/var/lib/rabbitmq
     healthcheck:
@@ -48,26 +59,26 @@ services:
     build: .
     container_name: docmind-api
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     environment:
       APP_NAME: DocMind
       APP_VERSION: 0.1.0
       API_V1_PREFIX: /api/v1
-      API_KEY: ${API_KEY}
+      API_KEY: ${API_KEY:?Задайте API_KEY в .env}
       UPLOAD_DIR: /app/uploads
       MAX_UPLOAD_BYTES: "20971520"
-      DATABASE_URL: postgresql+asyncpg://docmind:docmind@db:5432/docmind
-      RABBITMQ_URL: amqp://docmind:docmind@rabbitmq:5672/
+      DATABASE_URL: postgresql+asyncpg://docmind:${POSTGRES_PASSWORD:-docmind}@db:5432/docmind
+      RABBITMQ_URL: amqp://docmind:${RABBITMQ_PASSWORD:-docmind}@rabbitmq:5672/
       RABBITMQ_QUEUE: documents.process
       RABBITMQ_DLQ: documents.process.dlq
       EXTRACTOR_PROVIDER: ${EXTRACTOR_PROVIDER:-mock}
       LLM_BASE_URL: http://ollama:11434/v1
       LLM_MODEL: ${LLM_MODEL:-llama3.2:1b}
       LLM_API_KEY: ollama
-      ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: change-me
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Задайте ADMIN_PASSWORD в .env}
       METRICS_USERNAME: metrics
-      METRICS_PASSWORD: ${METRICS_PASSWORD}
+      METRICS_PASSWORD: ${METRICS_PASSWORD:?Задайте METRICS_PASSWORD в .env}
     volumes:
       - docmind_uploads:/app/uploads
     depends_on:
@@ -87,8 +98,8 @@ services:
       APP_NAME: DocMind
       APP_VERSION: 0.1.0
       UPLOAD_DIR: /app/uploads
-      DATABASE_URL: postgresql+asyncpg://docmind:docmind@db:5432/docmind
-      RABBITMQ_URL: amqp://docmind:docmind@rabbitmq:5672/
+      DATABASE_URL: postgresql+asyncpg://docmind:${POSTGRES_PASSWORD:-docmind}@db:5432/docmind
+      RABBITMQ_URL: amqp://docmind:${RABBITMQ_PASSWORD:-docmind}@rabbitmq:5672/
       RABBITMQ_QUEUE: documents.process
       RABBITMQ_DLQ: documents.process.dlq
       EXTRACTOR_PROVIDER: ${EXTRACTOR_PROVIDER:-mock}
@@ -108,10 +119,21 @@ services:
     restart: unless-stopped
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.15.1
     container_name: docmind-prometheus
+    # prometheus.yml не поддерживает подстановку env, поэтому пароль для скрейпа
+    # /metrics кладём во временный файл и читаем через `password_file`.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s' "$$METRICS_PASSWORD" > /tmp/metrics_password &&
+        exec /bin/prometheus \
+          --config.file=/etc/prometheus/prometheus.yml \
+          --storage.tsdb.path=/prometheus
+    environment:
+      METRICS_PASSWORD: ${METRICS_PASSWORD:?Задайте METRICS_PASSWORD в .env}
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - docmind_prometheus:/prometheus
@@ -119,15 +141,16 @@ services:
       - api
       - worker
     restart: unless-stopped
-  
+
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.2.4
     container_name: docmind-grafana
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      # Применяется только при первой инициализации тома docmind_grafana.
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Задайте GRAFANA_ADMIN_PASSWORD в .env}
       GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - docmind_grafana:/var/lib/grafana
@@ -139,28 +162,14 @@ services:
     restart: unless-stopped
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.9
     container_name: docmind-loki
     ports:
-      - "3100:3100"
+      - "127.0.0.1:3100:3100"
     command: -config.file=/etc/loki/config.yml
     volumes:
       - ./monitoring/loki-config.yml:/etc/loki/config.yml:ro
       - docmind_loki:/loki
-    restart: unless-stopped
-
-  promtail:
-    image: grafana/promtail:latest
-    container_name: docmind-promtail
-    command: -config.file=/etc/promtail/config.yml
-    ports:
-      - "9080:9080"
-    volumes:
-      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    depends_on:
-      - loki
     restart: unless-stopped
 
 

@@ -16,7 +16,8 @@
 | `ruff.toml` | Конфиг Ruff: select E/F/I/UP/B; format double-quotes |
 | `Dockerfile` | Multi-stage: `builder` (pip + compilers) → `runtime` (пакеты + код); non-root `appuser` через `gosu` |
 | `docker-entrypoint.sh` | Запускается как root: `chown /app/uploads → exec gosu appuser <cmd>`. Решает проблему прав на Docker volume при non-root пользователе |
-| `docker-compose.yml` | api / worker + PostgreSQL + RabbitMQ + Ollama + мониторинг-стек |
+| `docker-compose.yml` | api / worker + PostgreSQL + RabbitMQ + Ollama + мониторинг-стек; пароли из `.env` (`${VAR:?}` — обязательные), порты только на `127.0.0.1`, версии образов закреплены |
+| `docker-compose.override.yml` | **Только dev**, подхватывается автоматически: `promtail` с монтированием `docker.sock`. Prod: `docker compose -f docker-compose.yml up -d` |
 | `.dockerignore` | Не класть в context: `venv/`, `.env`, `uploads/`, `tests/`, `samples/`, `.git/` |
 | `pytest.ini` | Настройки pytest: `testpaths`, addopts с покрытием; по умолчанию `-m "not integration"` |
 | `alembic.ini` | Конфиг Alembic (миграции) |
@@ -52,15 +53,15 @@
 | `app/core/metrics.py` | Prometheus `Counter` / `Histogram`: upload, process (done/failed), LLM, latency, `extractor_fallback_total` |
 | `app/main.py` | ASGI endpoint `/metrics` для API (Basic Auth) |
 | `app/worker.py` | HTTP metrics на `:8001/metrics` |
-| `monitoring/prometheus.yml` | Scrape `api:8000/metrics` и `worker:8001/metrics` |
+| `monitoring/prometheus.yml` | Scrape `api:8000/metrics` (Basic Auth, пароль через `password_file`, который создаётся при старте контейнера из `METRICS_PASSWORD`) и `worker:8001/metrics` |
 | `monitoring/loki-config.yml` | Конфиг Loki (порт 3100) |
-| `monitoring/promtail-config.yml` | Docker SD → лейблы `container` / `compose_service` → push в Loki |
+| `monitoring/promtail-config.yml` | (dev, через `docker-compose.override.yml`) Docker SD → лейблы `container` / `compose_service` → push в Loki |
 | `monitoring/grafana/provisioning/datasources/datasources.yml` | Datasources Prometheus + Loki |
 | `monitoring/grafana/provisioning/dashboards/dashboards.yml` | Provider папки dashboards |
 | `monitoring/grafana/dashboards/docmind-overview.json` | Dashboard DocMind Overview |
 | `scripts/load_upload.ps1` | Генерация нагрузки для демо метрик/логов |
 
-Порты с хоста: Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.
+Порты с хоста (только `127.0.0.1`): Prometheus `9090`, Grafana `3000`, Loki `3100`, Promtail `9080`.
 
 ---
 

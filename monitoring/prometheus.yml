@@ -6,7 +6,8 @@ scrape_configs:
     metrics_path: /metrics/
     basic_auth:
       username: metrics
-      password: change-me
+      # Файл создаётся при старте контейнера из METRICS_PASSWORD (см. docker-compose.yml)
+      password_file: /tmp/metrics_password
     static_configs:
       - targets: ["api:8000"]
 

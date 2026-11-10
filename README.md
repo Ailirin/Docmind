@@ -132,8 +132,9 @@ docker compose up -d --build
 | Админка | http://127.0.0.1:8000/admin/documents | Список и карточки документов |
 | Мониторинг | http://127.0.0.1:3000 | Grafana — графики и логи |
 
-Доступы для локальной демо-среды задаются в `.env.example` и `docker-compose.yml`.  
-**Реальные секреты** храните только в своём `.env` и не коммитьте в git.
+Все пароли и ключи (`API_KEY`, `ADMIN_PASSWORD`, `METRICS_PASSWORD`, `GRAFANA_ADMIN_PASSWORD`, `POSTGRES_PASSWORD`, `RABBITMQ_PASSWORD`) берутся из `.env`; обязательные переменные без значения останавливают `docker compose up` с понятной ошибкой. В `.env.example` стоят демо-значения (`change-me`) — **перед любым деплоем замените их** и не коммитьте свой `.env`.
+
+Порты опубликованы только на `127.0.0.1`. Promtail (сбор логов, монтирует `docker.sock`) вынесен в `docker-compose.override.yml` — он подхватывается автоматически в dev. Для prod: `docker compose -f docker-compose.yml up -d`. Версии образов закреплены (без `:latest`).
 
 После правок кода — пересборка образа:
 
