@@ -13,6 +13,7 @@ from uuid import uuid4
 
 import pytest
 
+from app.core.exceptions import DocumentNotFoundError
 from app.models.document import Document, DocumentStatus, DocumentType
 from app.services.processor import process_document
 
@@ -108,7 +109,7 @@ class TestProcessDocumentFailure:
         assert updated.error_message
 
     def test_document_not_found_raises(self, sync_db_session):
-        with pytest.raises(ValueError, match="not found"):
+        with pytest.raises(DocumentNotFoundError, match="not found"):
             process_document(sync_db_session, uuid4())
 
     def test_extractor_failure_marks_failed(self, sync_db_session, monkeypatch):

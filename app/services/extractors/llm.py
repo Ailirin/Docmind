@@ -10,7 +10,7 @@ import json
 import logging
 import re
 
-from openai import APIConnectionError, APITimeoutError, OpenAI
+from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 from pydantic import ValidationError
 from tenacity import (
     RetryError,
@@ -191,7 +191,9 @@ class LlmEntityExtractor(EntityExtractor):
                     **kwargs,
                     response_format={"type": "json_object"},
                 )
-            except Exception:
+            except APIStatusError:
+                # HTTP-ошибка (модель не поддерживает response_format) — пробуем без него.
+                # Сетевые ошибки сюда НЕ попадают: их ретраит tenacity выше.
                 response = self.client.chat.completions.create(**kwargs)
             return (response.choices[0].message.content or "").strip()
 

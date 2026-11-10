@@ -16,12 +16,13 @@
 
 from __future__ import annotations
 
+import httpx
 import pytest
 import pytest_asyncio
-from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool
 from testcontainers.postgres import PostgresContainer
 
 from alembic import command as alembic_command
@@ -89,10 +90,17 @@ def integration_sync_engine(pg_sync_url):
     engine.dispose()
 
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def integration_async_engine(pg_async_url, integration_sync_engine):
-    """Async-engine (asyncpg). Миграции уже накатаны sync-engine'ом."""
-    engine = create_async_engine(pg_async_url, pool_pre_ping=True, echo=False)
+    """
+    Async-engine (asyncpg) на КАЖДЫЙ тест. Миграции уже накатаны sync-engine'ом.
+
+    Почему не session-scope: pytest-asyncio даёт каждому тесту свой event loop,
+    а соединения asyncpg привязаны к loop, в котором созданы. Общий пул переживал
+    бы свой loop -> "Event loop is closed" / "attached to a different loop".
+    NullPool: соединение открывается и закрывается внутри loop теста.
+    """
+    engine = create_async_engine(pg_async_url, poolclass=NullPool, echo=False)
     yield engine
     await engine.dispose()
 
@@ -151,8 +159,14 @@ def sync_db_session(integration_sync_engine) -> Session:
 @pytest_asyncio.fixture
 async def api_client(db_session: AsyncSession, monkeypatch):
     """
-    FastAPI TestClient с реальной async-БД и замоканной очередью.
-    dependency_overrides[get_db] подставляет тестовую AsyncSession.
+    httpx.AsyncClient поверх ASGI-приложения с реальной async-БД и замоканной очередью.
+
+    Почему не starlette TestClient: он гоняет приложение в СВОЁМ event loop (отдельный
+    поток), а соединение asyncpg в db_session привязано к loop pytest-asyncio —
+    получаем "got Future attached to a different loop". ASGITransport выполняет
+    приложение в том же loop, что и тест, поэтому db_session общий и безопасный.
+
+    dependency_overrides[get_db] подставляет тестовую AsyncSession (SAVEPOINT-изоляция).
     """
 
     async def _override_get_db():
@@ -166,8 +180,12 @@ async def api_client(db_session: AsyncSession, monkeypatch):
 
     app.dependency_overrides[get_db] = _override_get_db
     try:
-        with TestClient(app, raise_server_exceptions=True) as client:
-            client.headers["X-API-Key"] = "test-key"
+        transport = httpx.ASGITransport(app=app)
+        async with httpx.AsyncClient(
+            transport=transport,
+            base_url="http://test",
+            headers={"X-API-Key": "test-key"},
+        ) as client:
             yield client
     finally:
         app.dependency_overrides.pop(get_db, None)

@@ -100,7 +100,7 @@
 | Файл | Зачем |
 |------|--------|
 | `base.py` | Базовый класс SQLAlchemy `Base` для моделей |
-| `session.py` | Engine с настраиваемым пулом (`pool_size`, `max_overflow`, `pool_timeout`, `pool_recycle`, `pool_pre_ping`), `SessionLocal`, dependency `get_db` |
+| `session.py` | Два движка из одного `DATABASE_URL`: `async_engine` (asyncpg) + `AsyncSessionLocal` + dependency `get_db` — для API; `sync_engine` (psycopg2, URL выводится через `_to_sync_url`) + `SessionLocal` — для worker, ручного `process` и Alembic. Пул настраивается (`pool_size`, `max_overflow`, `pool_timeout`, `pool_recycle`, `pool_pre_ping`) |
 
 ### `app/models/`
 
@@ -113,33 +113,33 @@
 
 | Файл | Зачем |
 |------|--------|
-| `document.py` | Pydantic-схемы ответов: `DocumentCreateResponse`, `DocumentResponse`, `DocumentListResponse` (с полями `total` / `has_next`), `HealthResponse`, `ReadyResponse` |
+| `document.py` | Pydantic-схемы ответов: `DocumentCreateResponse`, `DocumentResponse`, `DocumentListResponse` (с полями `total` / `has_next`), `HealthResponse`, `ReadyResponse`. Enum `DocumentStatus` / `DocumentType` не дублируются — импортируются из `app/models/document.py` (единый источник истины) |
 | `extraction.py` | Схемы сущностей: `PatientInfo`, `DiagnosisInfo`, `TreatmentInfo`, `MedicalExtraction`, `ExtractionResult` (с валидацией `confidence`) |
 
 ### `app/storage/`
 
 | Файл | Зачем |
 |------|--------|
-| `documents.py` | Репозиторий: `add_document`, `get_document`, `list_documents` (limit / offset / **status filter**), `count_documents` (**status filter**) |
+| `documents.py` | Async-репозиторий: `add_document`, `get_document` (`populate_existing=True` — всегда свежая строка из БД, а не кэш сессии), `list_documents` (limit / offset / **status filter**, сортировка `created_at DESC, id DESC` — `id` как tie-breaker для стабильной пагинации), `count_documents` (**status filter**) |
 
 ### `app/queue/`
 
 | Файл | Зачем |
 |------|--------|
 | `setup.py` | `declare_process_queues`: основная очередь + DLQ (`x-dead-letter-*`) |
-| `publisher.py` | Публикация `{document_id, request_id}` в RabbitMQ; lazy-connect + один retry при обрыве |
+| `publisher.py` | Публикация `{document_id, request_id}` в RabbitMQ; lazy-connect + один retry при обрыве. Доступ к общему соединению/каналу защищён `threading.RLock` — pika не потокобезопасна, а API вызывает publisher из пула потоков (`anyio.to_thread`) |
 
 ### `app/services/`
 
 | Файл | Зачем |
 |------|--------|
-| `file_storage.py` | Атомарная запись PDF: `tempfile.mkstemp` + `os.replace`; `delete_upload` без исключений при отсутствии файла |
+| `file_storage.py` | Async-запись PDF через `aiofiles`: пишет в `{uuid}.tmp`, затем атомарный `os.replace`; при `OSError` убирает tmp и бросает `StorageError`; `delete_upload` не падает при отсутствии файла |
 | `pdf_extractor.py` | Извлечение текста из PDF через PyMuPDF (`fitz`) |
 | `classifier.py` | Rule-based классификация типа документа по ключевым словам и score |
-| `processor.py` | Пайплайн: `queued/uploaded → processing → done/failed`; логи, метрики done/failed и latency |
+| `processor.py` | Синхронный пайплайн (sync `Session`, вызывается worker'ом и ручным `process`): `queued/uploaded → processing → done/failed`; бросает `DocumentNotFoundError` / `EmptyDocumentError`; при сбое делает `rollback()` перед записью статуса FAILED; логи, метрики done/failed и latency |
 | `extractors/base.py` | Абстрактный интерфейс `EntityExtractor.extract(text, doc_type)` |
 | `extractors/mock.py` | Regex/эвристики без LLM (детерминированный, удобен для тестов) |
-| `extractors/llm.py` | LLM через OpenAI-compatible API; **retry до 3 раз** (tenacity, exponential backoff) при `APIConnectionError` / `OSError`; нормализация и валидация ответа через Pydantic |
+| `extractors/llm.py` | LLM через OpenAI-compatible API; **retry до 3 раз** (tenacity, exponential backoff) при `APIConnectionError` / `OSError`; при HTTP-ошибке (`APIStatusError`, модель не поддерживает `response_format`) один повтор без `json_object`; нормализация и валидация ответа через Pydantic |
 | `extractors/fallback.py` | `FallbackEntityExtractor(primary, secondary)` — при сбое primary автоматически переключается на secondary; помечает результат `extractor=regex_fallback`, снижает confidence, инкрементирует Prometheus-счётчик |
 | `extractors/factory.py` | При `mock` → `MockEntityExtractor`; при `llm` → `FallbackEntityExtractor(LlmEntityExtractor, MockEntityExtractor)` — graceful degradation вместо FAILED |
 
@@ -157,7 +157,7 @@
 
 | Файл | Зачем |
 |------|--------|
-| `env.py` | Подключение Alembic к `settings.database_url` и моделям; `compare_type=True` |
+| `env.py` | Подключение Alembic к моделям; URL берётся из `Config` (`set_main_option`), если задан явно (так тесты направляют миграции в testcontainers), иначе из `settings.database_url`; asyncpg-URL конвертируется в psycopg2; `compare_type=True` |
 | `script.py.mako` | Шаблон новой миграции |
 | `versions/b539e13ac795_*.py` | Создание таблицы `documents` |
 | `versions/bc1598f34896_*.py` | Rename `error_massage` → `error_message` |
@@ -172,28 +172,35 @@
 
 | Файл | Что проверяет |
 |------|----------------|
-| `conftest.py` | Фикстуры: тексты документов, путь к sample PDF, `client` (TestClient с замоканными FS/DB/queue) |
+| `conftest.py` | Фикстуры: тексты документов, путь к sample PDF, `client` (starlette `TestClient` с замоканными async-FS / storage / queue — реальной БД нет, поэтому loop-конфликтов нет) |
 | `test_classifier.py` | Rule-based классификатор (discharge / prescription / diagnosis / unknown) |
 | `test_mock_extractor.py` | Mock-экстрактор: поля patient, diagnosis, treatment, confidence |
 | `test_pdf_extractor.py` | Чтение реального sample PDF; FileNotFoundError для отсутствующего файла |
 | `test_extraction_schema.py` | Pydantic-валидация: `confidence` в диапазоне, округление |
-| `test_processor.py` | Пайплайн `process_document`: success, not found, пустой текст, ошибка экстрактора |
+| `test_processor.py` | Пайплайн `process_document`: success, `DocumentNotFoundError`, пустой текст, ошибка экстрактора |
 | `test_factory.py` | Фабрика: `mock` → `MockEntityExtractor`, `llm` → `FallbackEntityExtractor` с правильными primary/secondary, unknown → ValueError, case-insensitive |
 | `test_fallback_extractor.py` | `FallbackEntityExtractor`: success без fallback, переключение на secondary, cap confidence ≤ 0.5, Prometheus-счётчик, сохранность данных |
 | `test_exceptions.py` | Все 7 доменных исключений: поля, строки сообщений, иерархия наследования, ловля через `DocMindError` |
 | `test_worker.py` | `handle_message` (success / malformed JSON / exception / missing key / invalid UUID / db.close всегда); `_connect_with_backoff` (3 сценария); `_handle_signal` устанавливает флаг |
-| `test_llm_extractor.py` | `_extract_json_object` (чистый JSON / markdown / мусор), `_normalize_diagnosis_fields`, `_fill_from_text`, `LlmEntityExtractor.extract` (success / метрика / invalid JSON / ValidationError / retry на APIConnectionError) |
+| `test_llm_extractor.py` | `_extract_json_object` (чистый JSON / markdown / мусор), `_normalize_diagnosis_fields`, `_fill_from_text`, `LlmEntityExtractor.extract` (success / метрика / invalid JSON / ValidationError / retry на APIConnectionError / повтор без `json_object` при `APIStatusError`) |
 | `test_documents_storage.py` | SQL-запросы через mock-сессию: limit, offset в stmt |
-| `test_publisher.py` | RabbitMQ publisher: повторное использование канала, basic_publish вызывается |
+| `test_publisher.py` | RabbitMQ publisher: повторное использование канала, `basic_publish` вызывается; 8 параллельных потоков сериализуются блокировкой (в канале одновременно не больше одного publish) |
 | `test_health.py` | Эндпоинты `/health` и `/health/ready`: ok / 503 / без API-ключа |
 | `test_metrics_auth.py` | Basic Auth для `/metrics`: 401 без заголовка, 200 с верным ключом |
 | `test_admin.py` | HTML-админка: список документов, карточка, 401 без auth, 401 неверный пароль, 404, пустой extraction_result |
-| `test_api.py` | API v1 полный цикл: upload (202, валидации, 503 при недоступной очереди), GET document, GET list (пагинация, фильтр по статусу, has_next), manual process |
+| `test_api.py` | API v1 полный цикл: upload (202, валидации, 503 при недоступной очереди), GET document, GET list (пагинация, фильтр по статусу, has_next), manual process (в т.ч. `DocumentProcessingError` → 422, а не 500); upload: 503 при `StorageError`, удаление файла при сбое записи в БД |
 
 ### Интеграционные тесты (`tests/integration/`)
 
 Требуют Docker для тестов с PostgreSQL. При недоступном Docker — **SKIPPED**, не ERROR.  
 Изоляция через `SAVEPOINT` (один контейнер на сессию, rollback после каждого теста).
+
+Особенности async-тестов (выяснены на практике — каждый пункт был причиной реального падения):
+
+- **Клиент — `httpx.AsyncClient` + `ASGITransport`, а не `TestClient`.** `TestClient` гонит приложение в своём event loop (отдельный поток), а соединение `asyncpg` в `db_session` привязано к loop pytest-asyncio → `attached to a different loop`. `ASGITransport` выполняет приложение в том же loop, что и тест.
+- **Async-engine — на каждый тест, с `NullPool`.** Каждый тест получает свой event loop; общий session-scope пул переживал бы свой loop → `Event loop is closed`. Sync-engine с миграциями при этом остаётся session-scope.
+- **Миграции идут в контейнер.** `alembic/env.py` уважает URL, заданный через `Config.set_main_option`; иначе они молча уехали бы в БД из `DATABASE_URL`.
+- Внутри одной транзакции `now()` одинаков у всех строк — поэтому тесты порядка задают `created_at` явно.
 
 ```bash
 pytest -m integration          # только интеграционные
@@ -202,10 +209,10 @@ pytest                         # только unit (по умолчанию)
 
 | Файл | Что проверяет |
 |------|----------------|
-| `conftest.py` | `pg_container` (PostgreSQL 16 через testcontainers), `integration_engine` (alembic upgrade head), `db_session` (SAVEPOINT-изоляция), `api_client` (TestClient + `dependency_overrides[get_db]`) |
-| `test_db_integration.py` | Реальный PostgreSQL: CRUD, JSONB round-trip, `list_documents` (фильтр / limit / offset / ordering), `count_documents` совпадает с `len(list)`, переходы статусов |
-| `test_api_integration.py` | HTTP + реальная БД: upload создаёт запись, GET возвращает данные, list с пагинацией и фильтром по статусу, `storage_path` не утекает в ответ, 503 при сбое очереди убирает файл |
-| `test_processor_integration.py` | Полный pipeline: sample PDF → DONE в реальной БД, JSONB заполнен, все sample-PDF проходят (smoke), ошибки экстрактора → FAILED + `error_message`, повторная обработка из FAILED работает |
+| `conftest.py` | `pg_container` (PostgreSQL 16 через testcontainers, session), `integration_sync_engine` (session; `alembic upgrade head` в контейнер), `integration_async_engine` (на каждый тест, `NullPool`), `db_session` (AsyncSession, SAVEPOINT-изоляция), `sync_db_session` (Session, SAVEPOINT — для `process_document`), `api_client` (`httpx.AsyncClient` + `ASGITransport` + `dependency_overrides[get_db]`) |
+| `test_db_integration.py` | Реальный PostgreSQL: CRUD, JSONB round-trip, `list_documents` (фильтр / limit / offset / ordering по `created_at`, стабильный порядок при равных `created_at`), `count_documents` совпадает с `len(list)`, переходы статусов |
+| `test_api_integration.py` | HTTP (async) + реальная БД: upload создаёт запись и отклоняет не-PDF / фейковые байты / пустой файл, GET возвращает данные и 404, `storage_path` не утекает в ответ, list с пагинацией, фильтром по статусу, 422 на неверный статус, 401 без API-ключа |
+| `test_processor_integration.py` | Полный pipeline: sample PDF → DONE в реальной БД, JSONB заполнен, все sample-PDF проходят (smoke), `DocumentNotFoundError` для несуществующего id, ошибки экстрактора → FAILED + `error_message`, повторная обработка из FAILED работает |
 | `test_file_storage_integration.py` | Реальная ФС: атомарность (нет `.tmp`-файлов после save), перезапись, крупный файл (1 МБ), round-trip save → delete, несколько документов независимы, реальный PDF читается PyMuPDF |
 
 ---
