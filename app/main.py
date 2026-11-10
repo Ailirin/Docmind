@@ -12,6 +12,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from app.admin.router import router as admin_router
 from app.api.v1.router import router as v1_router
 from app.core.config import settings
+from app.core.http_metrics import HttpMetricsMiddleware
 from app.core.logging import clear_request_id, configure_logging, set_request_id
 from app.core.security import constant_time_equals
 from app.queue.publisher import close_publisher
@@ -86,6 +87,7 @@ class MetricsAuthMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(MetricsAuthMiddleware)
 app.add_middleware(RequestIdMiddleware)
+app.add_middleware(HttpMetricsMiddleware)  # добавлен последним = самый внешний: меряет всё
 
 app.include_router(v1_router, prefix=settings.api_v1_prefix)
 app.include_router(admin_router, prefix="/admin", tags=["admin"])

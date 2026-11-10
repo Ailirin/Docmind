@@ -197,13 +197,13 @@ venv\Scripts\python -m pytest -m "integration or not integration"
 
 | Тип | Количество | Что проверяет |
 |-----|-----------|---------------|
-| Unit | 121 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas, безопасность (fail-closed секреты, ReDoS) |
+| Unit | 127 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas, безопасность (fail-closed секреты, ReDoS) |
 | Integration: file_storage | 14 | Реальная ФС: атомарность, round-trip, крупные файлы |
 | Integration: DB | 20 | Реальный PostgreSQL: CRUD, JSONB, фильтры, пагинация, стабильный порядок, count |
 | Integration: API | 14 | HTTP (`httpx.AsyncClient`) + реальная БД: upload, GET, пагинация и фильтры, валидации, API-ключ |
 | Integration: processor | 9 | Полный pipeline: sample PDF → DB, все статусы, идемпотентность |
 
-Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами. Миграции Alembic накатываются в контейнер один раз на сессию; приложение в тестах работает в одном event loop с тестом (`httpx.AsyncClient` + `ASGITransport`), см. [`FILES.md`](FILES.md#интеграционные-тесты-testsintegration). Всего: 121 unit + 57 integration = 178.
+Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами. Миграции Alembic накатываются в контейнер один раз на сессию; приложение в тестах работает в одном event loop с тестом (`httpx.AsyncClient` + `ASGITransport`), см. [`FILES.md`](FILES.md#интеграционные-тесты-testsintegration). Всего: 127 unit + 57 integration = 184.
 
 ---
 
@@ -220,7 +220,8 @@ venv\Scripts\python -m pytest -m "integration or not integration"
 - **Предупреждение о небезопасных дефолтах** — конфиг ругается при запуске с `api_key=change-me`.
 - **Миграции БД** — схема версионируется через Alembic.
 - **Единый идентификатор запроса** — `X-Request-ID` сквозь API → очередь → worker.
-- **Метрики** — upload/process счётчики, histogram latency, fallback-счётчик; закрыты Basic Auth.
+- **Метрики** — upload/process счётчики, histogram времени обработки, исходы LLM, fallback-счётчик, HTTP-метрики по шаблону роута (RPS, статусы, латентность); закрыты Basic Auth.
+- **Дашборд Grafana «DocMind Overview»** — 6 блоков: обзор за период (успешность, ошибки, p95, очередь, DLQ), конвейер (docs/мин, p50/p95/p99, heatmap, очередь и воркеры), LLM и fallback, HTTP API, ресурсы процессов (память, CPU, аптайм), логи Loki (объём по уровням, ошибки, журнал). Аннотации показывают перезапуски сервисов; метрики очереди берутся из RabbitMQ (`rabbitmq_prometheus`).
 - **CI/CD** — GitHub Actions: lint (Ruff) → unit-тесты (Python 3.12 + 3.13) → integration-тесты на каждом PR; автоотмена устаревших прогонов.
 
 ---
