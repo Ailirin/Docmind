@@ -196,13 +196,13 @@ venv\Scripts\python -m pytest -m "integration or not integration"
 
 | Тип | Количество | Что проверяет |
 |-----|-----------|---------------|
-| Unit | 102 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas |
+| Unit | 121 | API, worker (handle_message, backoff, SIGTERM), LLM-экстрактор (retry, парсинг), fallback-экстрактор, исключения, admin, classifier, processor, publisher, schemas, безопасность (fail-closed секреты, ReDoS) |
 | Integration: file_storage | 14 | Реальная ФС: атомарность, round-trip, крупные файлы |
 | Integration: DB | 20 | Реальный PostgreSQL: CRUD, JSONB, фильтры, пагинация, стабильный порядок, count |
 | Integration: API | 14 | HTTP (`httpx.AsyncClient`) + реальная БД: upload, GET, пагинация и фильтры, валидации, API-ключ |
 | Integration: processor | 9 | Полный pipeline: sample PDF → DB, все статусы, идемпотентность |
 
-Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами. Миграции Alembic накатываются в контейнер один раз на сессию; приложение в тестах работает в одном event loop с тестом (`httpx.AsyncClient` + `ASGITransport`), см. [`FILES.md`](FILES.md#интеграционные-тесты-testsintegration). Всего: 102 unit + 57 integration = 159.
+Интеграционные тесты используют `testcontainers` (PostgreSQL в Docker) и изоляцию через `SAVEPOINT` — без truncate таблиц между тестами. Миграции Alembic накатываются в контейнер один раз на сессию; приложение в тестах работает в одном event loop с тестом (`httpx.AsyncClient` + `ASGITransport`), см. [`FILES.md`](FILES.md#интеграционные-тесты-testsintegration). Всего: 121 unit + 57 integration = 178.
 
 ---
 

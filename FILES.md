@@ -75,7 +75,8 @@
 
 | Файл | Зачем |
 |------|--------|
-| `config.py` | Настройки из `.env`: БД (+ пул: `db_pool_size`, `max_overflow`, `pool_recycle`), LLM (`llm_timeout`), логи (`log_level`, `log_format`), RabbitMQ, метрики; `@model_validator` предупреждает о небезопасных дефолтах |
+| `config.py` | Настройки из `.env`: БД (+ пул: `db_pool_size`, `max_overflow`, `pool_recycle`), LLM (`llm_timeout`), логи (`log_level`, `log_format`), RabbitMQ, метрики; `@model_validator` `validate_secrets`: **отказ старта** при пустом `api_key` / `admin_password` / `metrics_password` (fail closed), предупреждение о слабых значениях (`change-me`, `admin`) вне debug |
+| `security.py` | `constant_time_equals(provided, expected)`: сравнение секретов за постоянное время; при пустом ожидаемом секрете всегда `False` (иначе `compare_digest("", "")` пускал бы по пустому ключу). Используется в API-ключе, админке и `/metrics` |
 | `logging.py` | Логирование в stdout: plaintext или JSON (`LOG_FORMAT=json`) через python-json-logger; `request_id` ContextVar + Filter; заглушка шумных библиотек (pika, httpx, openai) |
 | `metrics.py` | Prometheus Counter / Histogram: upload, process (done/failed), LLM outcomes, latency, `extractor_fallback_total` |
 | `exceptions.py` | Кастомные доменные исключения: `DocumentNotFoundError`, `DocumentProcessingError`, `EmptyDocumentError`, `StorageError`, `QueueError`, `ExtractionError` |
@@ -84,7 +85,7 @@
 
 | Файл | Зачем |
 |------|--------|
-| `deps.py` | `require_api_key`: проверка заголовка `X-API-Key` через `secrets.compare_digest` |
+| `deps.py` | `require_api_key`: проверка заголовка `X-API-Key` через `constant_time_equals` (fail closed при пустом ключе) |
 | `health_checks.py` | `check_database()` и `check_rabbitmq()` для readiness |
 | `v1/router.py` | REST API v1: health/ready, `POST /documents` (upload), `GET /documents` (список + пагинация + фильтр по статусу), `GET /documents/{id}`, `POST /documents/{id}/process` |
 
@@ -187,6 +188,7 @@
 | `test_publisher.py` | RabbitMQ publisher: повторное использование канала, `basic_publish` вызывается; 8 параллельных потоков сериализуются блокировкой (в канале одновременно не больше одного publish) |
 | `test_health.py` | Эндпоинты `/health` и `/health/ready`: ok / 503 / без API-ключа |
 | `test_metrics_auth.py` | Basic Auth для `/metrics`: 401 без заголовка, 200 с верным ключом |
+| `test_security.py` | Безопасность: `constant_time_equals`; пустой API-ключ / пароль `/metrics` / пароль админки не дают обойти аутентификацию; `Settings` отказывается стартовать с пустым секретом и предупреждает о слабом; регрессия ReDoS в `MockEntityExtractor` (20 000 пробелов по всем полям < 2 с) |
 | `test_admin.py` | HTML-админка: список документов, карточка, 401 без auth, 401 неверный пароль, 404, пустой extraction_result |
 | `test_api.py` | API v1 полный цикл: upload (202, валидации, 503 при недоступной очереди), GET document, GET list (пагинация, фильтр по статусу, has_next), manual process (в т.ч. `DocumentProcessingError` → 422, а не 500); upload: 503 при `StorageError`, удаление файла при сбое записи в БД |
 

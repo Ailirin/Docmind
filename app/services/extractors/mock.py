@@ -13,7 +13,14 @@ from app.schemas.extraction import (
 )
 from app.services.extractors.base import EntityExtractor
 
-_STOP = r"(?:\s+(?:Diagnosis|Medication|Dosage|Treatment|Date|Rp):|$)"
+# Терминатор поля: следующее ключевое слово или конец текста.
+#
+# ВАЖНО (ReDoS): прежний вариант `\s+(?:KW):` проверялся в КАЖДОЙ позиции ленивого
+# `(.+?)`. На длинной серии пробелов внутри поля `\s+` каждый раз сканировал остаток
+# серии -> O(n^2) (16 000 пробелов = ~15 с, 1 млн = часы; один PDF вешал воркер).
+# `(?<=\S)` разрешает проверку только сразу после непробельного символа, поэтому
+# серия пробелов сканируется один раз -> O(n). Семантика совпадений не меняется.
+_STOP = r"(?:(?<=\S)(?=\s+(?:Diagnosis|Medication|Dosage|Treatment|Date|Rp):)|$)"
 
 
 class MockEntityExtractor(EntityExtractor):
